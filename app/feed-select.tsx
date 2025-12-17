@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ArrowLeft, CheckCircle } from 'lucide-react-native';
+import { ArrowLeft, CheckCircle, ChevronLeft } from 'lucide-react-native';
 
 const INTERESTS = [
     { id: '1', image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400' },
@@ -35,19 +35,32 @@ export default function FeedSelect() {
     };
 
     return (
-        <View className="flex-1 bg-black px-4 pt-12">
-            <TouchableOpacity
-                onPress={() => router.back()}
-                className="mb-8 pl-2"
-            >
-                <ArrowLeft size={24} color="white" />
-            </TouchableOpacity>
+        <View className="flex-1 bg-white px-4 pt-12">
+            <View className="flex-row items-center mb-8">
+                <TouchableOpacity onPress={() => router.back()}>
+                    <ChevronLeft size={24} color="black" />
+                </TouchableOpacity>
 
-            <Text className="text-white text-3xl font-bold text-center mb-2">
-                Create Your feed
+                {/* Segmented Progress Bar - Step 9/10 */}
+                <View className="flex-1 flex-row mx-4 gap-1">
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                </View>
+            </View>
+
+            <Text className="text-black text-3xl font-bold text-center mb-2">
+                Let's curate your feed.
             </Text>
-            <Text className="text-gray-400 text-center mb-8">
-                Select at least 1
+            <Text className="text-gray-500 text-center mb-8">
+                Pick 2 vibes to create your feed.
             </Text>
 
             <FlatList
@@ -66,13 +79,13 @@ export default function FeedSelect() {
                             resizeMode="cover"
                         />
                         {selectedInterests.has(item.id) && (
-                            <View className="absolute inset-0 bg-black/40 items-center justify-center border-4 border-[#eecfb4] rounded-xl">
-                                <CheckCircle size={40} color="#eecfb4" fill="black" />
+                            <View className="absolute inset-0 bg-black/20 items-center justify-center border-4 border-[#ccfd51] rounded-xl">
+                                <CheckCircle size={40} color="#ccfd51" fill="black" />
                             </View>
                         )}
                         {!selectedInterests.has(item.id) && (
                             <View className="absolute top-2 right-2">
-                                <View className="w-6 h-6 rounded-full border-2 border-white/50" />
+                                <View className="w-6 h-6 rounded-full border-2 border-white/80 shadow-sm" />
                             </View>
                         )}
                     </TouchableOpacity>
@@ -82,7 +95,7 @@ export default function FeedSelect() {
             <TouchableOpacity
                 onPress={handleContinue}
                 disabled={selectedInterests.size === 0}
-                className={`py-4 rounded-full mt-4 mb-4 ${selectedInterests.size > 0 ? 'bg-[#eecfb4]' : 'bg-gray-800'
+                className={`py-4 rounded-full mt-4 mb-4 ${selectedInterests.size > 0 ? 'bg-[#eecfb4]' : 'bg-gray-200'
                     }`}
             >
                 <Text className={`text-center font-bold text-lg ${selectedInterests.size > 0 ? 'text-black' : 'text-gray-500'

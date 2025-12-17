@@ -6,17 +6,17 @@ export default function Account() {
   const { user, signOut } = useAuth();
 
   const menuItems = [
-    { icon: User, label: 'Profile', onPress: () => {} },
-    { icon: Heart, label: 'Favorites', onPress: () => {} },
-    { icon: ShoppingBag, label: 'Orders', onPress: () => {} },
-    { icon: Settings, label: 'Settings', onPress: () => {} },
+    { icon: User, label: 'Profile', onPress: () => { } },
+    { icon: Heart, label: 'Favorites', onPress: () => { } },
+    { icon: ShoppingBag, label: 'Orders', onPress: () => { } },
+    { icon: Settings, label: 'Settings', onPress: () => { } },
   ];
 
   return (
-    <ScrollView className="flex-1 bg-black">
+    <ScrollView className="flex-1 bg-white">
       <View className="pt-12 px-4 pb-8">
-        <Text className="text-white text-2xl font-bold mb-2">Account</Text>
-        <Text className="text-gray-400">{user?.email}</Text>
+        <Text className="text-black text-2xl font-bold mb-2">Account</Text>
+        <Text className="text-gray-500">{user?.email}</Text>
       </View>
 
       <View className="px-4">
@@ -24,16 +24,16 @@ export default function Account() {
           <TouchableOpacity
             key={index}
             onPress={item.onPress}
-            className="flex-row items-center bg-gray-900 p-4 rounded-xl mb-3"
+            className="flex-row items-center bg-gray-50 p-4 rounded-xl mb-3 border border-gray-100"
           >
             <item.icon size={24} color="#f4a261" />
-            <Text className="text-white text-lg ml-4 flex-1">{item.label}</Text>
+            <Text className="text-black text-lg ml-4 flex-1">{item.label}</Text>
           </TouchableOpacity>
         ))}
 
         <TouchableOpacity
           onPress={signOut}
-          className="flex-row items-center bg-red-500/20 p-4 rounded-xl mt-4"
+          className="flex-row items-center bg-red-50 p-4 rounded-xl mt-4 border border-red-100"
         >
           <LogOut size={24} color="#e76f51" />
           <Text className="text-red-500 text-lg ml-4 flex-1">Sign Out</Text>

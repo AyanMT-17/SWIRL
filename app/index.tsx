@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSegments } from 'expo-router';
-import { View, Text, Animated, Dimensions } from 'react-native';
+import { View, Text } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Index() {
@@ -8,20 +9,12 @@ export default function Index() {
   const router = useRouter();
   const segments = useSegments();
   const [isSplashFinished, setIsSplashFinished] = useState(false);
-  const [fadeAnim] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    // Fade in animation
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-
     // Timer for splash screen
     const timer = setTimeout(() => {
       setIsSplashFinished(true);
-    }, 3000);
+    }, 2500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -29,11 +22,7 @@ export default function Index() {
   useEffect(() => {
     if (!isSplashFinished || loading) return;
 
-    const inAuth = segments[0] === 'auth';
-    const inOnboarding = segments[0] === 'onboarding';
-
-    // Logic: Always show onboarding if not logged in, or check session
-    // For now, mirroring previous logic but only after splash
+    // Logic: Always show onboarding if not logged in
     if (!session) {
       router.replace('/onboarding');
     } else if (session && !hasUsername) {
@@ -47,8 +36,8 @@ export default function Index() {
   if (!isSplashFinished || loading) {
     return (
       <View className="flex-1 items-center justify-center bg-black">
-        <Animated.View style={{ opacity: fadeAnim }}>
-          <Text className="text-white text-6xl font-bold tracking-widest">
+        <Animated.View entering={FadeIn.duration(1000)} exiting={FadeOut.duration(500)}>
+          <Text className="text-white text-5xl font-black tracking-tighter">
             SWIRL.
           </Text>
         </Animated.View>
@@ -56,5 +45,5 @@ export default function Index() {
     );
   }
 
-  return null;
+  return <View className="flex-1 bg-black" />;
 }

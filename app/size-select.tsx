@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, ChevronLeft } from 'lucide-react-native';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
 const FITS = ['BAGGY', 'SLIM', 'CASUAL', 'RETRO'];
@@ -18,29 +18,41 @@ export default function SizeSelect() {
     };
 
     return (
-        <View className="flex-1 bg-black px-6 pt-12">
-            <TouchableOpacity
-                onPress={() => router.back()}
-                className="mb-8"
-            >
-                <ArrowLeft size={24} color="white" />
-            </TouchableOpacity>
+        <View className="flex-1 bg-white px-6 pt-12">
+            <View className="flex-row items-center mb-8">
+                <TouchableOpacity onPress={() => router.back()}>
+                    <ChevronLeft size={24} color="black" />
+                </TouchableOpacity>
 
-            <Text className="text-white text-3xl font-bold text-center mb-12">
-                Your size and fit
+                {/* Segmented Progress Bar - Step 10/10 (Full) */}
+                <View className="flex-1 flex-row mx-4 gap-1">
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                </View>
+            </View>
+
+            <Text className="text-black text-3xl font-bold text-center mb-12">
+                Your Fit
             </Text>
 
             <View className="mb-12">
-                <Text className="text-gray-400 text-center mb-6">Select a size</Text>
                 <View className="flex-row flex-wrap justify-center gap-4">
                     {SIZES.map(size => (
                         <TouchableOpacity
                             key={size}
                             onPress={() => setSelectedSize(size)}
-                            className={`w-14 h-14 rounded-full items-center justify-center border ${selectedSize === size ? 'bg-white border-white' : 'border-gray-600'
+                            className={`w-14 h-14 rounded-full items-center justify-center border ${selectedSize === size ? 'bg-[#fdfde8] border-[#fdfde8]' : 'bg-white border-gray-200'
                                 }`}
                         >
-                            <Text className={`font-bold ${selectedSize === size ? 'text-black' : 'text-white'}`}>
+                            <Text className={`font-bold ${selectedSize === size ? 'text-black' : 'text-black'}`}>
                                 {size}
                             </Text>
                         </TouchableOpacity>
@@ -49,16 +61,15 @@ export default function SizeSelect() {
             </View>
 
             <View className="mb-8">
-                <Text className="text-gray-400 text-center mb-6">Select a fit</Text>
                 <View className="flex-row flex-wrap justify-center gap-4">
                     {FITS.map(fit => (
                         <TouchableOpacity
                             key={fit}
                             onPress={() => setSelectedFit(fit)}
-                            className={`px-6 py-3 rounded-full border ${selectedFit === fit ? 'bg-[#eecfb4] border-[#eecfb4]' : 'border-gray-600'
+                            className={`px-8 py-4 rounded-2xl border ${selectedFit === fit ? 'bg-[#fdfde8] border-[#fdfde8]' : 'bg-white border-gray-200'
                                 }`}
                         >
-                            <Text className={`font-bold ${selectedFit === fit ? 'text-black' : 'text-white'}`}>
+                            <Text className={`font-bold tracking-widest uppercase ${selectedFit === fit ? 'text-black' : 'text-black'}`}>
                                 {fit}
                             </Text>
                         </TouchableOpacity>
@@ -69,12 +80,12 @@ export default function SizeSelect() {
             <TouchableOpacity
                 onPress={handleContinue}
                 disabled={!selectedSize || !selectedFit}
-                className={`py-4 rounded-full mt-auto mb-10 ${selectedSize && selectedFit ? 'bg-[#eecfb4]' : 'bg-gray-800'
+                className={`py-4 rounded-full mt-auto mb-10 ${selectedSize && selectedFit ? 'bg-[#eecfb4]' : 'bg-gray-200'
                     }`}
             >
-                <Text className={`text-center font-bold text-lg ${selectedSize && selectedFit ? 'text-black' : 'text-gray-500'
+                <Text className={`text-center font-bold text-lg ${selectedSize && selectedFit ? 'text-black' : 'text-gray-400'
                     }`}>
-                    Continue
+                    Next
                 </Text>
             </TouchableOpacity>
         </View>

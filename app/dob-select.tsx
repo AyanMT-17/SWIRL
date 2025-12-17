@@ -84,7 +84,7 @@ export default function DobSelect() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-black"
+            className="flex-1 bg-white"
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="flex-1 px-6 pt-12 pb-10">
@@ -92,21 +92,38 @@ export default function DobSelect() {
                         onPress={() => router.back()}
                         className="mb-8"
                     >
-                        <ArrowLeft size={24} color="white" />
+                        <ArrowLeft size={24} color="black" />
                     </TouchableOpacity>
 
-                    <Text className="text-white text-3xl font-bold text-center mb-12">
-                        Select your{'\n'}Date of Birth
+                    <View className="items-center mb-8">
+                        {/* Segmented Progress Bar - Step 8/10 */}
+                        <View className="flex-1 flex-row gap-1 w-full">
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                        </View>
+                    </View>
+
+                    <Text className="text-black text-3xl font-bold text-center mb-12">
+                        What's your age?
                     </Text>
 
-                    {/* Text Inputs */}
-                    <View className="flex-row justify-center space-x-4 mb-8">
+                    {/* Text Inputs (Hidden or styled better if keeping manual entry) */}
+                    {/* Keeping manual entry for robustness but simplifying UI to be minimally invasive if user prefers picker */}
+                    <View className="flex-row justify-center space-x-4 mb-8 opacity-50">
                         <View className="items-center">
                             <Text className="text-gray-500 mb-2">Year</Text>
                             <TextInput
-                                className="bg-transparent text-white text-3xl font-bold border-b-2 border-gray-700 w-24 text-center py-2"
+                                className="bg-transparent text-black text-xl font-bold border-b border-gray-300 w-20 text-center py-2"
                                 placeholder="YYYY"
-                                placeholderTextColor="#333"
+                                placeholderTextColor="#999"
                                 keyboardType="numeric"
                                 maxLength={4}
                                 value={year}
@@ -117,9 +134,9 @@ export default function DobSelect() {
                         <View className="items-center">
                             <Text className="text-gray-500 mb-2">Month</Text>
                             <TextInput
-                                className="bg-transparent text-white text-3xl font-bold border-b-2 border-gray-700 w-16 text-center py-2"
+                                className="bg-transparent text-black text-xl font-bold border-b border-gray-300 w-12 text-center py-2"
                                 placeholder="MM"
-                                placeholderTextColor="#333"
+                                placeholderTextColor="#999"
                                 keyboardType="numeric"
                                 maxLength={2}
                                 value={month}
@@ -130,9 +147,9 @@ export default function DobSelect() {
                         <View className="items-center">
                             <Text className="text-gray-500 mb-2">Day</Text>
                             <TextInput
-                                className="bg-transparent text-white text-3xl font-bold border-b-2 border-gray-700 w-16 text-center py-2"
+                                className="bg-transparent text-black text-xl font-bold border-b border-gray-300 w-12 text-center py-2"
                                 placeholder="DD"
-                                placeholderTextColor="#333"
+                                placeholderTextColor="#999"
                                 keyboardType="numeric"
                                 maxLength={2}
                                 value={day}
@@ -147,24 +164,24 @@ export default function DobSelect() {
                         {Platform.OS === 'android' && (
                             <TouchableOpacity
                                 onPress={() => setShowPicker(true)}
-                                className="bg-gray-800 px-6 py-3 rounded-full mb-4"
+                                className="bg-gray-100 px-6 py-3 rounded-full mb-4"
                             >
-                                <Text className="text-white">Select from Calendar</Text>
+                                <Text className="text-black">Select from Calendar</Text>
                             </TouchableOpacity>
                         )}
 
                         {(showPicker || Platform.OS === 'ios') && (
-                            <View className="bg-white/10 rounded-2xl p-2 w-full max-w-xs overflow-hidden">
+                            <View className="bg-gray-50 rounded-2xl p-2 w-full max-w-xs overflow-hidden">
                                 <DateTimePicker
                                     testID="dateTimePicker"
                                     value={date}
                                     mode="date"
                                     display="spinner"
                                     onChange={onDateChange}
-                                    textColor="white"
+                                    textColor="black"
                                     maximumDate={new Date()}
                                     minimumDate={new Date(1920, 0, 1)}
-                                    themeVariant="dark"
+                                    themeVariant="light"
                                     style={{ height: 150 }}
                                 />
                             </View>
@@ -174,10 +191,10 @@ export default function DobSelect() {
                     <TouchableOpacity
                         onPress={handleContinue}
                         disabled={!isDateValid()}
-                        className={`py-4 rounded-full mt-auto ${isDateValid() ? 'bg-[#eecfb4]' : 'bg-gray-800'
+                        className={`py-4 rounded-full mt-auto ${isDateValid() ? 'bg-[#eecfb4]' : 'bg-gray-200'
                             }`}
                     >
-                        <Text className={`text-center font-bold text-lg ${isDateValid() ? 'text-black' : 'text-gray-500'
+                        <Text className={`text-center font-bold text-lg ${isDateValid() ? 'text-black' : 'text-gray-400'
                             }`}>
                             Continue
                         </Text>

@@ -62,7 +62,7 @@ export default function Categories() {
               item.product_images[0]?.image_url ||
               'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400',
           }}
-          className="w-full h-64 rounded-lg bg-gray-800"
+          className="w-full h-64 rounded-lg bg-gray-100"
         />
         <TouchableOpacity
           className="absolute top-2 right-2 bg-white/90 p-2 rounded-full"
@@ -76,26 +76,26 @@ export default function Categories() {
         </TouchableOpacity>
       </View>
       <View className="mt-2">
-        <Text className="text-white font-bold">{item.brand}</Text>
-        <Text className="text-gray-400 text-sm" numberOfLines={1}>
+        <Text className="text-black font-bold">{item.brand}</Text>
+        <Text className="text-gray-500 text-sm" numberOfLines={1}>
           {item.name}
         </Text>
-        <Text className="text-white font-bold mt-1">₦{item.price}</Text>
+        <Text className="text-black font-bold mt-1">₦{item.price}</Text>
       </View>
     </TouchableOpacity>
   );
 
   return (
-    <View className="flex-1 bg-black">
+    <View className="flex-1 bg-white">
       <View className="pt-12 px-4 pb-4">
-        <Text className="text-white text-2xl font-bold mb-4">Lumière</Text>
+        <Text className="text-black text-2xl font-bold mb-4">Lumière</Text>
 
-        <View className="flex-row items-center bg-gray-900 rounded-full px-4 py-3 mb-4">
-          <Search size={20} color="#999" />
+        <View className="flex-row items-center bg-gray-100 rounded-full px-4 py-3 mb-4">
+          <Search size={20} color="#666" />
           <TextInput
-            className="flex-1 ml-2 text-base text-white"
+            className="flex-1 ml-2 text-base text-black"
             placeholder="Search your needs"
-            placeholderTextColor="#666"
+            placeholderTextColor="#999"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -106,11 +106,11 @@ export default function Categories() {
             <TouchableOpacity
               key={filter}
               onPress={() => setActiveFilter(filter)}
-              className={`mr-3 px-6 py-2 rounded-full ${activeFilter === filter ? 'bg-[#eecfb4]' : 'bg-gray-800'
+              className={`mr-3 px-6 py-2 rounded-full ${activeFilter === filter ? 'bg-[#eecfb4]' : 'bg-gray-100 border border-gray-200'
                 }`}
             >
               <Text
-                className={`font-medium ${activeFilter === filter ? 'text-black' : 'text-white'
+                className={`font-medium ${activeFilter === filter ? 'text-black' : 'text-gray-600'
                   }`}
               >
                 {filter}

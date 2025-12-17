@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 // import { supabase } from '@/lib/supabase'; // Removed
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, ChevronLeft } from 'lucide-react-native';
 
 export default function CreateUsername() {
   const [username, setUsername] = useState('');
@@ -34,7 +34,8 @@ export default function CreateUsername() {
     try {
       // Mock API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push('/gender-select');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      router.push('/referral-code');
     } catch (error: any) {
       Alert.alert('Error', error.message);
     } finally {
@@ -45,38 +46,48 @@ export default function CreateUsername() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-black"
+      className="flex-1 bg-white"
     >
       <View className="flex-1 pt-12 px-6">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="mb-8"
-        >
-          <ArrowLeft size={24} color="white" />
-        </TouchableOpacity>
+        <View className="flex-row items-center mb-8">
+          <TouchableOpacity onPress={() => router.back()}>
+            <ChevronLeft size={24} color="black" />
+          </TouchableOpacity>
 
-        <View className="mb-4 items-center">
-          {/* Placeholder for user avatar bubble if needed, per design maybe just text */}
-          <View className="w-20 h-20 bg-gray-800 rounded-full mb-4 overflow-hidden">
-            <Image
-              source={{ uri: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=800' }}
-              className="w-full h-full"
-            />
+          {/* Segmented Progress Bar - Step 4/10 */}
+          <View className="flex-1 flex-row mx-4 gap-1">
+            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
           </View>
         </View>
 
-        <Text className="text-white text-3xl font-bold text-center mb-2">
-          Create Username
+        <View className="mb-4 items-center">
+          {/* Placeholder for user avatar bubble if needed, per design maybe just text */}
+          <View className="w-20 h-20 bg-gray-100 rounded-full mb-4 overflow-hidden border border-gray-200">
+            {/* Displaying placeholder image or keeping it basic */}
+          </View>
+        </View>
+
+        <Text className="text-black text-3xl font-bold text-center mb-2">
+          What should we call you?
         </Text>
-        <Text className="text-gray-400 text-center mb-12">
-          This will be your unique identity on Swirl
+        <Text className="text-gray-500 text-center mb-12">
+          this helps your friends find you
         </Text>
 
         <View>
           <TextInput
-            className="bg-white text-black px-6 py-4 rounded-full text-lg font-medium text-center"
-            placeholder="Username"
-            placeholderTextColor="#666"
+            className="bg-transparent text-black px-6 py-4 rounded-full text-6xl font-medium text-center"
+            placeholder="name"
+            placeholderTextColor="#eecfb4"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
@@ -85,12 +96,6 @@ export default function CreateUsername() {
         </View>
 
         <View className="flex-row gap-2 mt-4 justify-center">
-          <View className="border border-white/20 rounded-full px-4 py-2">
-            <Text className="text-white text-xs">Available</Text>
-          </View>
-          <View className="border border-white/20 rounded-full px-4 py-2">
-            <Text className="text-white text-xs">Unique</Text>
-          </View>
         </View>
 
 
@@ -100,7 +105,7 @@ export default function CreateUsername() {
           className="bg-[#eecfb4] py-4 rounded-full mt-auto mb-10"
         >
           <Text className="text-black text-center font-bold text-lg">
-            {loading ? 'Creating...' : 'Continue'}
+            {loading ? 'Creating...' : 'Next'}
           </Text>
         </TouchableOpacity>
       </View>

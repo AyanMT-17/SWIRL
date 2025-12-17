@@ -25,20 +25,36 @@ export default function GenderSelect() {
     };
 
     return (
-        <View className="flex-1 bg-black px-6 pt-12 relative">
+        <View className="flex-1 bg-white px-6 pt-12 relative">
             <TouchableOpacity
                 onPress={() => router.back()}
                 className="absolute top-12 left-6 z-10"
             >
-                <ArrowLeft size={24} color="white" />
+                <ArrowLeft size={24} color="black" />
             </TouchableOpacity>
+
+            <View className="absolute top-14 left-0 right-0 items-center z-0 pointer-events-none">
+                {/* Segmented Progress Bar - Step 7/10 */}
+                <View className="flex-1 flex-row mx-4 gap-1 w-full px-12">
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
+                    <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                    <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                    <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                </View>
+            </View>
 
             {/* Floating Image Cloud */}
             <View className="flex-1 relative mt-10 mb-8">
                 {COLLAGE_IMAGES.map((img) => (
                     <View
                         key={img.id}
-                        className="absolute rounded-2xl overflow-hidden border-2 border-white/10 shadow-lg"
+                        className="absolute rounded-2xl overflow-hidden border-2 border-gray-100 shadow-lg"
                         style={img.style}
                     >
                         <Image
@@ -50,41 +66,39 @@ export default function GenderSelect() {
                 ))}
             </View>
 
-            <View className="mb-8">
-                <Text className="text-white text-3xl font-bold text-center mb-4">
-                    What are you{'\n'}shopping for?
+            <View className="mb-8 mt-auto">
+                <Text className="text-black text-3xl font-bold text-center mb-4">
+                    Select your Gender?
                 </Text>
-                <Text className="text-gray-400 text-center text-sm px-4 mb-8">
+                <Text className="text-gray-500 text-center text-sm px-4 mb-8">
                     We'll show you brands and products that match your style and interests
                 </Text>
 
                 <View className="flex-row justify-between gap-4 mb-8">
                     <TouchableOpacity
                         onPress={() => setSelectedGender('men')}
-                        className={`flex-1 py-4 rounded-2xl border-2 flex-row items-center justify-center ${selectedGender === 'men' ? 'bg-white border-white' : 'bg-transparent border-gray-700'
+                        className={`flex-1 py-4 rounded-full flex-row items-center justify-center border ${selectedGender === 'men' ? 'bg-[#fdfde8] border-[#fdfde8]' : 'bg-[#f9f9f9] border-gray-200'
                             }`}
                     >
-                        {selectedGender === 'men' && <View className="mr-2"><Check size={16} color="black" /></View>}
-                        <Text className={`font-bold ${selectedGender === 'men' ? 'text-black' : 'text-white'}`}>MALE</Text>
+                        <Text className={`font-bold tracking-widest ${selectedGender === 'men' ? 'text-black' : 'text-gray-400'}`}>MALE</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={() => setSelectedGender('women')}
-                        className={`flex-1 py-4 rounded-2xl border-2 flex-row items-center justify-center ${selectedGender === 'women' ? 'bg-white border-white' : 'bg-transparent border-gray-700'
+                        className={`flex-1 py-4 rounded-full flex-row items-center justify-center border ${selectedGender === 'women' ? 'bg-[#fdfde8] border-[#fdfde8]' : 'bg-[#f9f9f9] border-gray-200'
                             }`}
                     >
-                        {selectedGender === 'women' && <View className="mr-2"><Check size={16} color="black" /></View>}
-                        <Text className={`font-bold ${selectedGender === 'women' ? 'text-black' : 'text-white'}`}>FEMALE</Text>
+                        <Text className={`font-bold tracking-widest ${selectedGender === 'women' ? 'text-black' : 'text-gray-400'}`}>FEMALE</Text>
                     </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity
                     onPress={handleContinue}
                     disabled={!selectedGender}
-                    className={`py-4 rounded-full w-full ${selectedGender ? 'bg-[#eecfb4]' : 'bg-gray-800'}`}
+                    className={`py-4 rounded-full w-full ${selectedGender ? 'bg-[#eecfb4]' : 'bg-gray-200'}`}
                 >
-                    <Text className={`text-center font-bold text-lg ${selectedGender ? 'text-black' : 'text-gray-500'}`}>
-                        Continue
+                    <Text className={`text-center font-bold text-lg ${selectedGender ? 'text-black' : 'text-gray-400'}`}>
+                        Next
                     </Text>
                 </TouchableOpacity>
             </View>
