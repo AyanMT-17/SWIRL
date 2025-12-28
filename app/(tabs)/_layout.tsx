@@ -3,6 +3,12 @@ import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { Home, Search, ShoppingCart, User } from 'lucide-react-native';
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
+  const currentRouteName = state.routes[state.index].name;
+
+  if (currentRouteName === 'bag') {
+    return null;
+  }
+
   return (
     <View className="absolute bottom-6 left-4 right-4 h-20 bg-[#fdfde8] rounded-[30px] flex-row items-center justify-between px-6 shadow-xl shadow-black/30">
       {/* Left Side: Home & Search */}

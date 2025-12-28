@@ -11,7 +11,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart, CartItem } from '@/contexts/CartContext';
 
-import { Trash2 } from 'lucide-react-native';
+import { Trash2, ArrowLeft } from 'lucide-react-native';
 
 export default function Bag() {
   const { cartItems, removeFromCart, getCartTotal, isLoading } = useCart();
@@ -55,7 +55,13 @@ export default function Bag() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="pt-12 px-4 pb-4">
+      <View className="pt-12 px-4 pb-4 flex-row items-center">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mr-4 p-2 -ml-2"
+        >
+          <ArrowLeft size={24} color="black" />
+        </TouchableOpacity>
         <Text className="text-black text-2xl font-bold">My Bag</Text>
       </View>
 
