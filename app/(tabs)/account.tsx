@@ -1,43 +1,93 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Heart, ShoppingBag, Settings, LogOut } from 'lucide-react-native';
+import {
+  User,
+  MessageCircle,
+  Heart,
+  Share2,
+  Info,
+  ChevronRight,
+  UserPlus
+} from 'lucide-react-native';
 
 export default function Account() {
   const { user, signOut } = useAuth();
 
+  // Extract first name from email or use default
+  const userName = user?.email?.split('@')[0] || 'User';
+  const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+
   const menuItems = [
-    { icon: User, label: 'Profile', onPress: () => { } },
-    { icon: Heart, label: 'Favorites', onPress: () => { } },
-    { icon: ShoppingBag, label: 'Orders', onPress: () => { } },
-    { icon: Settings, label: 'Settings', onPress: () => { } },
+    {
+      icon: User,
+      label: 'My account',
+      subtitle: 'View and edit your profile details',
+      onPress: () => { }
+    },
+    {
+      icon: MessageCircle,
+      label: 'Speak to the founder',
+      subtitle: 'Report an issue or share your thoughts',
+      onPress: () => { }
+    },
+    {
+      icon: Heart,
+      label: 'My vibe',
+      subtitle: 'Define your vibe preference and size',
+      onPress: () => { }
+    },
+    {
+      icon: Share2,
+      label: 'Connect your Pinterest board',
+      subtitle: 'Coming soon!',
+      onPress: () => { }
+    },
+    {
+      icon: Info,
+      label: 'Show app tutorial',
+      subtitle: '',
+      onPress: () => { }
+    },
   ];
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="pt-12 px-4 pb-8">
-        <Text className="text-black text-2xl font-bold mb-2">Account</Text>
-        <Text className="text-gray-500">{user?.email}</Text>
+    <ScrollView className="flex-1 bg-[#f5f5f0]">
+      {/* Header Section */}
+      <View className="bg-white rounded-b-3xl pt-12 px-5 pb-6">
+        <Text className="text-black text-3xl font-bold mb-4">
+          Hey, {displayName}
+        </Text>
+
+        <TouchableOpacity className="flex-row items-center bg-[#f4a261] px-4 py-3 rounded-full self-start">
+          <UserPlus size={18} color="#fff" />
+          <Text className="text-white font-semibold ml-2">Invite friends</Text>
+        </TouchableOpacity>
       </View>
 
-      <View className="px-4">
+      {/* Menu Items */}
+      <View className="px-4 mt-4">
         {menuItems.map((item, index) => (
           <TouchableOpacity
             key={index}
             onPress={item.onPress}
-            className="flex-row items-center bg-gray-50 p-4 rounded-xl mb-3 border border-gray-100"
+            className="flex-row items-center bg-white p-4 rounded-2xl mb-2"
           >
-            <item.icon size={24} color="#f4a261" />
-            <Text className="text-black text-lg ml-4 flex-1">{item.label}</Text>
+            <View className="w-10 h-10 items-center justify-center">
+              <item.icon size={20} color="#000" />
+            </View>
+            <View className="flex-1 ml-3">
+              <Text className="text-black text-base font-semibold">
+                {item.label}
+              </Text>
+              {item.subtitle ? (
+                <Text className="text-gray-400 text-sm mt-0.5">
+                  {item.subtitle}
+                </Text>
+              ) : null}
+            </View>
+            <ChevronRight size={20} color="#666" />
           </TouchableOpacity>
         ))}
-
-        <TouchableOpacity
-          onPress={signOut}
-          className="flex-row items-center bg-red-50 p-4 rounded-xl mt-4 border border-red-100"
-        >
-          <LogOut size={24} color="#e76f51" />
-          <Text className="text-red-500 text-lg ml-4 flex-1">Sign Out</Text>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
