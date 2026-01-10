@@ -43,7 +43,7 @@ export default function Bag() {
         <Text className="text-gray-500 text-sm mt-1">Size: {item.size}</Text>
         <View className="flex-row items-center justify-between mt-2">
           <Text className="text-black font-bold">
-            ₦{item.product.price * item.quantity}
+            ₹{item.product.price * item.quantity}
           </Text>
           <TouchableOpacity onPress={() => removeFromCart(item.id)}>
             <Trash2 size={20} color="#e76f51" />
@@ -86,7 +86,7 @@ export default function Bag() {
           <View className="absolute bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-100">
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-black text-lg">Total</Text>
-              <Text className="text-black text-2xl font-bold">₦{total}</Text>
+              <Text className="text-black text-2xl font-bold">₹{total}</Text>
             </View>
             <TouchableOpacity className="bg-[#eecfb4] py-4 rounded-full">
               <Text className="text-black text-center font-bold text-lg">
