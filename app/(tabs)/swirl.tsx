@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, TextInput, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, X, Plus } from 'lucide-react-native';
-import { MOCK_PRODUCTS } from '@/constants/mockData';
+import { useLikes } from '@/contexts/LikesContext';
+import { useCart } from '@/contexts/CartContext';
 
 type Tab = 'swirls' | 'collection';
 
@@ -13,8 +14,8 @@ export default function Swirl() {
     const [showNewCollection, setShowNewCollection] = useState(false);
     const [collectionName, setCollectionName] = useState('');
 
-    // Mock saved products (in reality, these would be fetched from user's saved items)
-    const savedProducts = MOCK_PRODUCTS.slice(0, 4);
+    const { likedProducts, removeFromLikes } = useLikes();
+    const { addToCart } = useCart();
 
     return (
         <View className="flex-1 bg-white">
@@ -60,59 +61,75 @@ export default function Swirl() {
                 {activeTab === 'swirls' ? (
                     // My SWIRLs Tab
                     <View className="p-4">
-                        <FlatList
-                            data={savedProducts}
-                            numColumns={2}
-                            scrollEnabled={false}
-                            keyExtractor={(item) => item.id}
-                            columnWrapperStyle={{ gap: 12 }}
-                            contentContainerStyle={{ gap: 12 }}
-                            renderItem={({ item }) => (
-                                <View className="flex-1 bg-white rounded-3xl overflow-hidden border border-gray-200">
-                                    {/* Remove Button */}
-                                    <TouchableOpacity className="absolute top-3 right-3 z-10 w-6 h-6 bg-white rounded-full items-center justify-center">
-                                        <X size={16} color="#000" />
-                                    </TouchableOpacity>
+                        {likedProducts.length === 0 ? (
+                            <View className="items-center justify-center py-20">
+                                <Text className="text-6xl mb-4">💫</Text>
+                                <Text className="text-xl font-bold text-gray-900 mb-2">No SWIRLs yet!</Text>
+                                <Text className="text-gray-500 text-center">
+                                    Swipe right on products you love{"\n"}to add them here.
+                                </Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                data={likedProducts}
+                                numColumns={2}
+                                scrollEnabled={false}
+                                keyExtractor={(item) => item.id}
+                                columnWrapperStyle={{ gap: 12 }}
+                                contentContainerStyle={{ gap: 12 }}
+                                renderItem={({ item }) => (
+                                    <View className="flex-1 bg-white rounded-3xl overflow-hidden border border-gray-200">
+                                        {/* Remove Button */}
+                                        <TouchableOpacity
+                                            className="absolute top-3 right-3 z-10 w-6 h-6 bg-white rounded-full items-center justify-center"
+                                            onPress={() => removeFromLikes(item.id)}
+                                        >
+                                            <X size={16} color="#000" />
+                                        </TouchableOpacity>
 
-                                    {/* Product Image */}
-                                    <Image
-                                        source={{ uri: item.product_images[0]?.image_url }}
-                                        className="w-full h-48"
-                                        resizeMode="cover"
-                                    />
+                                        {/* Product Image */}
+                                        <Image
+                                            source={{ uri: item.product_images[0]?.image_url }}
+                                            className="w-full h-48"
+                                            resizeMode="cover"
+                                        />
 
-                                    {/* Product Info */}
-                                    <View className="p-3">
-                                        <Text className="text-xs text-gray-500 mb-1">{item.brand}</Text>
-                                        <Text className="text-sm font-bold text-gray-900 mb-1" numberOfLines={1}>
-                                            {item.name}
-                                        </Text>
-                                        <Text className="text-sm font-bold text-gray-900 mb-3">
-                                            ₹ {item.price.toLocaleString('en-IN')}
-                                        </Text>
+                                        {/* Product Info */}
+                                        <View className="p-3">
+                                            <Text className="text-xs text-gray-500 mb-1">{item.brand}</Text>
+                                            <Text className="text-sm font-bold text-gray-900 mb-1" numberOfLines={1}>
+                                                {item.name}
+                                            </Text>
+                                            <Text className="text-sm font-bold text-gray-900 mb-3">
+                                                ₹ {item.price.toLocaleString('en-IN')}
+                                            </Text>
 
-                                        {/* Action Buttons */}
-                                        <View className="flex-row gap-2">
-                                            <TouchableOpacity
-                                                onPress={() => setShowAddToCollection(true)}
-                                                className="flex-1 bg-[#F5F3EE] py-2 rounded-lg items-center"
-                                            >
-                                                <Text className="text-xs font-semibold text-gray-900">Add to Collection</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity className="bg-[#E8B298] px-4 py-2 rounded-lg items-center justify-center">
-                                                <Text className="text-lg">🛒</Text>
-                                            </TouchableOpacity>
+                                            {/* Action Buttons */}
+                                            <View className="flex-row gap-2">
+                                                <TouchableOpacity
+                                                    onPress={() => setShowAddToCollection(true)}
+                                                    className="flex-1 bg-[#F5F3EE] py-2 rounded-lg items-center"
+                                                >
+                                                    <Text className="text-xs font-semibold text-gray-900">Add to Collection</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    className="bg-[#E8B298] px-4 py-2 rounded-lg items-center justify-center"
+                                                    onPress={() => addToCart(item, 'M')}
+                                                >
+                                                    <Text className="text-lg">🛒</Text>
+                                                </TouchableOpacity>
+                                            </View>
                                         </View>
                                     </View>
-                                </View>
-                            )}
-                        />
+                                )}
+                            />
+                        )}
                     </View>
                 ) : (
                     // My Collection Tab
                     <View className="p-4">
                         <View className="flex-row flex-wrap gap-3">
-                            {MOCK_PRODUCTS.slice(0, 6).map((item, index) => (
+                            {likedProducts.slice(0, 6).map((item, index) => (
                                 <View
                                     key={item.id}
                                     className={`rounded-2xl overflow-hidden ${index % 3 === 0 ? 'w-[48%]' : 'w-[30%]'}`}
@@ -162,7 +179,7 @@ export default function Swirl() {
 
                         <ScrollView>
                             <View className="flex-row flex-wrap gap-3">
-                                {MOCK_PRODUCTS.slice(0, 6).map((item) => (
+                                {likedProducts.slice(0, 6).map((item) => (
                                     <TouchableOpacity
                                         key={item.id}
                                         className="w-[30%] h-32 rounded-2xl overflow-hidden border border-gray-200"
