@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { Camera, ChevronLeft, Mic, Search } from 'lucide-react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Image,
   ScrollView,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { PREMIUM_BRANDS, MOCK_PRODUCTS } from '@/constants/mockData';
 
 interface LocationCard {
   id: string;
@@ -344,6 +345,53 @@ export default function Categories() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
+  // Filter data based on search query
+  const filteredNearYou = useMemo(() => {
+    if (!searchQuery.trim()) return nearYouData;
+    return nearYouData.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  const filteredTrendingFashion = useMemo(() => {
+    if (!searchQuery.trim()) return trendingFashionData;
+    return trendingFashionData.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  const filteredLifestyle = useMemo(() => {
+    if (!searchQuery.trim()) return lifestyleData;
+    return lifestyleData.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  const filteredMyBrands = useMemo(() => {
+    if (!searchQuery.trim()) return myBrandsData;
+    return myBrandsData.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  const filteredPremiumBrands = useMemo(() => {
+    if (!searchQuery.trim()) return PREMIUM_BRANDS;
+    return PREMIUM_BRANDS.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  // Filter products based on search query (search by name, brand, category)
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return MOCK_PRODUCTS.filter(product =>
+      product.name.toLowerCase().includes(query) ||
+      product.brand.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
   return (
     <View className="flex-1 bg-[#f5f5f0] pb-20">
       <StatusBar barStyle="dark-content" />
@@ -372,95 +420,174 @@ export default function Categories() {
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* Products Section */}
+        {filteredProducts.length > 0 && (
+          <View className="bg-white rounded-3xl mx-4 mt-4 p-4">
+            <Text className="text-black text-lg font-bold mb-3">Products</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
+                {filteredProducts.map((product) => (
+                  <TouchableOpacity
+                    key={product.id}
+                    className="w-40 bg-gray-50 rounded-2xl overflow-hidden"
+                    onPress={() => router.push(`/product/${product.id}`)}
+                  >
+                    <Image
+                      source={{ uri: product.product_images[0]?.image_url }}
+                      className="w-full h-48 rounded-t-2xl"
+                      resizeMode="cover"
+                    />
+                    <View className="p-3">
+                      <Text className="text-xs text-gray-500 mb-1">{product.brand}</Text>
+                      <Text className="text-sm font-semibold text-gray-900 mb-2" numberOfLines={2}>
+                        {product.name}
+                      </Text>
+                      <Text className="text-base font-bold text-gray-900">
+                        ₹{product.price.toLocaleString('en-IN')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
+
         {/* Near You Section */}
-        <View className="bg-white rounded-3xl mx-4 mt-4 p-4">
-          <Text className="text-black text-lg font-bold mb-3">Near You</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-3">
-              {nearYouData.map((item) => (
-                <TouchableOpacity key={item.id} className="relative">
-                  <Image
-                    source={{ uri: item.image }}
-                    className="w-24 h-32 rounded-2xl"
-                  />
-                  <View className="absolute bottom-2 left-2">
-                    <Text className="text-white text-sm font-semibold shadow-lg">
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
+        {filteredNearYou.length > 0 && (
+          <View className="bg-white rounded-3xl mx-4 mt-4 p-4">
+            <Text className="text-black text-lg font-bold mb-3">Near You</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
+                {filteredNearYou.map((item) => (
+                  <TouchableOpacity key={item.id} className="relative">
+                    <Image
+                      source={{ uri: item.image }}
+                      className="w-24 h-32 rounded-2xl"
+                    />
+                    <View className="absolute bottom-2 left-2">
+                      <Text className="text-white text-sm font-semibold shadow-lg">
+                        {item.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
 
         {/* Trending Fashion Section */}
-        <View className="mt-4 px-4">
-          <Text className="text-black text-lg font-bold mb-3">
-            Trending Fashion
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-3">
-              {trendingFashionData.map((item) => (
-                <TouchableOpacity key={item.id} className="relative">
-                  <Image
-                    source={{ uri: item.image }}
-                    className="w-24 h-32 rounded-2xl"
-                  />
-                  <View className="absolute bottom-2 left-2">
-                    <Text className="text-white text-sm font-semibold shadow-lg">
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
+        {filteredTrendingFashion.length > 0 && (
+          <View className="mt-4 px-4">
+            <Text className="text-black text-lg font-bold mb-3">
+              Trending Fashion
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
+                {filteredTrendingFashion.map((item) => (
+                  <TouchableOpacity key={item.id} className="relative">
+                    <Image
+                      source={{ uri: item.image }}
+                      className="w-24 h-32 rounded-2xl"
+                    />
+                    <View className="absolute bottom-2 left-2">
+                      <Text className="text-white text-sm font-semibold shadow-lg">
+                        {item.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
 
         {/* Lifestyle Section */}
-        <View className="mt-4 px-4">
-          <Text className="text-black text-lg font-bold mb-3">Lifestyle</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-3">
-              {lifestyleData.map((item) => (
-                <TouchableOpacity key={item.id} className="relative">
-                  <Image
-                    source={{ uri: item.image }}
-                    className="w-24 h-32 rounded-2xl"
-                  />
-                  <View className="absolute bottom-2 left-2">
-                    <Text className="text-white text-sm font-semibold shadow-lg">
-                      {item.name}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
+        {filteredLifestyle.length > 0 && (
+          <View className="mt-4 px-4">
+            <Text className="text-black text-lg font-bold mb-3">Lifestyle</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
+                {filteredLifestyle.map((item) => (
+                  <TouchableOpacity key={item.id} className="relative">
+                    <Image
+                      source={{ uri: item.image }}
+                      className="w-24 h-32 rounded-2xl"
+                    />
+                    <View className="absolute bottom-2 left-2">
+                      <Text className="text-white text-sm font-semibold shadow-lg">
+                        {item.name}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
 
         {/* My Brands Section */}
-        <View className="mt-4 px-4 pb-6">
-          <Text className="text-black text-lg font-bold mb-3">My Brands</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-3">
-              {myBrandsData.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  className="w-24 h-32 bg-white rounded-2xl items-center justify-center border border-gray-100"
-                >
-                  <Image
-                    resizeMode="contain"
-                    source={{ uri: item.logo }}
-                    className="w-full h-full"
-                  />
-                </TouchableOpacity>
-              ))}
+        {filteredMyBrands.length > 0 && (
+          <View className="mt-4 px-4">
+            <Text className="text-black text-lg font-bold mb-3">My Brands</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
+                {filteredMyBrands.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    className="w-24 h-32 bg-white rounded-2xl items-center justify-center border border-gray-100"
+                  >
+                    <Image
+                      resizeMode="contain"
+                      source={{ uri: item.logo }}
+                      className="w-full h-full"
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Premium Brands Section */}
+        {filteredPremiumBrands.length > 0 && (
+          <View className="mt-4 px-4 pb-6">
+            <Text className="text-black text-lg font-bold mb-3">Premium Brands</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-3">
+                {filteredPremiumBrands.map((item) => (
+                  <TouchableOpacity
+                    key={item.id}
+                    className="w-24 h-32 bg-white rounded-2xl items-center justify-center border border-gray-100"
+                  >
+                    <Image
+                      resizeMode="contain"
+                      source={{ uri: item.logo }}
+                      className="w-full h-full"
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        )}
+
+        {/* No Results Message */}
+        {filteredProducts.length === 0 &&
+          filteredNearYou.length === 0 &&
+          filteredTrendingFashion.length === 0 &&
+          filteredLifestyle.length === 0 &&
+          filteredMyBrands.length === 0 &&
+          filteredPremiumBrands.length === 0 &&
+          searchQuery.trim() !== '' && (
+            <View className="mt-8 px-4 items-center">
+              <Text className="text-gray-500 text-base">No results found for "{searchQuery}"</Text>
+              <Text className="text-gray-400 text-sm mt-2">Try searching with different keywords</Text>
             </View>
-          </ScrollView>
-        </View>
+          )}
       </ScrollView>
     </View>
   );
 }
+
