@@ -41,9 +41,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '1',
         name: 'Oversized Hoodie',
-        price: 45000,
-        original_price: 60000,
+        price: 4500,
+        original_price: 6000,
         brand: 'ESSENTIALS',
+        category: 'Top',
         has_free_delivery: true,
         delivery_date: 'Tomorrow, Dec 14',
         discount_percentage: 25,
@@ -53,9 +54,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '2',
         name: 'Cargo Pants',
-        price: 35000,
+        price: 3500,
         original_price: null,
         brand: 'NIKE',
+        category: 'Bottom',
         has_free_delivery: false,
         delivery_date: 'Mon, Dec 16',
         discount_percentage: null,
@@ -65,9 +67,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '3',
         name: 'Retro Sneakers',
-        price: 85000,
-        original_price: 95000,
+        price: 8500,
+        original_price: 9500,
         brand: 'NEW BALANCE',
+        category: 'Footwear',
         has_free_delivery: true,
         delivery_date: 'Sun, Dec 15',
         discount_percentage: 10,
@@ -77,9 +80,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '4',
         name: 'Graphic Tee',
-        price: 15000,
-        original_price: 20000,
+        price: 1500,
+        original_price: 2000,
         brand: 'STUSSY',
+        category: 'Top',
         has_free_delivery: true,
         delivery_date: 'Tomorrow, Dec 14',
         discount_percentage: 25,
@@ -89,9 +93,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '5',
         name: 'Varsity Jacket',
-        price: 120000,
-        original_price: 150000,
+        price: 12000,
+        original_price: 15000,
         brand: 'OFF-WHITE',
+        category: 'Premium',
         has_free_delivery: true,
         delivery_date: 'Tue, Dec 17',
         discount_percentage: 20,
@@ -101,9 +106,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '6',
         name: 'Denim Jacket',
-        price: 55000,
+        price: 5500,
         original_price: null,
         brand: 'LEVIS',
+        category: 'Top',
         has_free_delivery: true,
         delivery_date: 'Tomorrow, Dec 14',
         discount_percentage: null,
@@ -113,9 +119,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '7',
         name: 'Beanie',
-        price: 12000,
-        original_price: 15000,
+        price: 1200,
+        original_price: 1500,
         brand: 'CARHARTT',
+        category: 'Accessories',
         has_free_delivery: false,
         delivery_date: 'Wed, Dec 18',
         discount_percentage: 20,
@@ -125,9 +132,10 @@ export const MOCK_PRODUCTS = [
     {
         id: '8',
         name: 'Running Shoes',
-        price: 95000,
+        price: 9500,
         original_price: null,
         brand: 'ADIDAS',
+        category: 'Footwear',
         has_free_delivery: true,
         delivery_date: 'Tomorrow, Dec 14',
         discount_percentage: null,
@@ -135,3 +143,67 @@ export const MOCK_PRODUCTS = [
         description: 'Lightweight running shoes with boost technology.',
     }
 ];
+
+export const PREMIUM_BRANDS = [
+    {
+        id: 'pb1',
+        name: 'Gucci',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Gucci-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb2',
+        name: 'Prada',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Prada-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb3',
+        name: 'Versace',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Versace-Logo-768x480.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb4',
+        name: 'Dior',
+        logo: 'https://1000logos.net/wp-content/uploads/2021/05/Dior-logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb5',
+        name: 'Chanel',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/07/Chanel-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb6',
+        name: 'Saint Laurent',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/04/Saint-Laurent-Logo-768x480.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb7',
+        name: 'Fendi',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Fendi-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb8',
+        name: 'Givenchy',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Givenchy-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb9',
+        name: 'Hermès',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Hermes-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    },
+    {
+        id: 'pb10',
+        name: 'Valentino',
+        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Valentino-Logo-768x432.png',
+        category: 'Luxury Fashion'
+    }
+];
+
