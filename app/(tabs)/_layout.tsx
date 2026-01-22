@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { View, Text, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { HomeIcon, MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from 'react-native-heroicons/outline';
+import { StatusBar } from 'expo-status-bar';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Base design is iPhone 16: 393x852
@@ -98,6 +99,7 @@ export default function TabLayout() {
       }}
       tabBar={props => <CustomTabBar {...props} />}
     >
+      <StatusBar style="dark" />
       <Tabs.Screen name="index" />
       <Tabs.Screen name="discovery" />
       <Tabs.Screen name="swirl" />
