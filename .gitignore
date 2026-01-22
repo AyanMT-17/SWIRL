@@ -31,5 +31,35 @@ yarn-error.*
 .env*.local
 .env
 
+
 # typescript
 *.tsbuildinfo
+
+# Large Data Files
+*.csv
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Android
+android/build/
+android/app/build/
+android/.gradle/
+android/app/.cxx/
+android/app/src/main/assets/
+android/app/src/main/res/raw/
+android/app/google-services.json
+
+# iOS
+ios/Pods/
+ios/build/
+ios/*.xcworkspace
+ios/*/.xccheckout
+ios/*.moved-aside
+ios/*.derivedData
+ios/*.hmap
+ios/*.ipa
+ios/*.xcuserstate

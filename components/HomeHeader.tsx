@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity, Image, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Search, Bell } from 'lucide-react-native';
+import { MagnifyingGlassIcon, BellIcon } from 'react-native-heroicons/outline';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function HomeHeader() {
@@ -28,11 +28,11 @@ export default function HomeHeader() {
                 {/* Right Actions */}
                 <View className="flex-row items-center gap-4">
                     <TouchableOpacity className="bg-white/50 p-2.5 rounded-full border border-black/5">
-                        <Search size={22} color="#111" strokeWidth={2.5} />
+                        <MagnifyingGlassIcon size={22} color="#111" strokeWidth={2.5} />
                     </TouchableOpacity>
 
                     <TouchableOpacity className="bg-white/50 p-2.5 rounded-full border border-black/5 relative">
-                        <Bell size={22} color="#111" strokeWidth={2.5} />
+                        <BellIcon size={22} color="#111" strokeWidth={2.5} />
                         <View className="absolute top-2 right-2.5 w-2 h-2 bg-[#ff3b30] rounded-full ring-2 ring-white" />
                     </TouchableOpacity>
                 </View>

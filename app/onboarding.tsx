@@ -12,26 +12,18 @@ import Animated, {
   FadeIn,
   FadeInDown
 } from 'react-native-reanimated';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRightIcon } from 'react-native-heroicons/outline';
 
 const { width, height } = Dimensions.get('window');
 
 const SLIDES = [
   {
     id: 1,
-    image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-  {
-    id: 2,
     image: 'https://images.pexels.com/photos/157675/fashion-men-s-individuality-black-and-white-157675.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-  {
-    id: 3,
-    image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400',
   }
 ];
 
-const MARQUEE_TEXT = "DISCOVER   YOUR   STYLE   WITH   SWIRL.   ";
+const MARQUEE_TEXT = "  UNIQUELY YOU";
 
 export default function Onboarding() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -96,25 +88,15 @@ export default function Onboarding() {
       {/* Bottom Content Container */}
       <View className="absolute bottom-0 left-0 right-0 pb-10">
 
-        {/* Pagination Dots */}
-        <View className="flex-row justify-center gap-2 mb-6 pointer-events-none">
-          {SLIDES.map((_, index) => (
-            <View
-              key={index}
-              className={`h-1 rounded-full ${index === currentSlide ? 'w-8 bg-[#ccfd51]' : 'w-2 bg-white/30'}`}
-            />
-          ))}
-        </View>
-
         {/* Subtext */}
         <View className="mb-4 px-4 pointer-events-none">
           <Text className="text-gray-400 text-center text-xs font-medium tracking-wide">
-            Experience the whole new way of <Text className="text-[#ccfd51] font-bold">"Fashion Discovery"</Text>
+            <Text className="text-[#ccfd51] font-bold">discover fashion like never before</Text>
           </Text>
         </View>
 
         {/* Marquee Text Area - Cream Pill */}
-        <View className="mb-2 mx-2 overflow-hidden bg-[#FDFDE8] h-20 rounded-[24px] relative">
+        <View className="mb-1 mx-2 overflow-hidden bg-[#FDFDE8] h-24 rounded-[24px] relative w-[96%]">
           <Animated.View className="flex-row absolute items-center h-full" style={marqueeStyle}>
             <Text className="text-black text-4xl font-black tracking-tight whitespace-nowrap uppercase line-through-none include-font-padding-false" style={{ transform: [{ translateY: 2 }] }}>
               {MARQUEE_TEXT}
@@ -132,7 +114,7 @@ export default function Onboarding() {
         <TouchableOpacity
           onPress={handleNext}
           activeOpacity={0.9}
-          className="mx-2 bg-[#eecfb4] h-20 rounded-[24px] flex-row items-center justify-center relative overflow-hidden mb-0"
+          className="mx-2 bg-[#eecfb4] h-24 rounded-[24px] flex-row items-center justify-center relative overflow-hidden mb-0"
         >
           <Text className="text-black font-bold text-lg">
             Get started

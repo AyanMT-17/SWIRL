@@ -1,14 +1,30 @@
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Delete, ChevronLeft } from 'lucide-react-native';
+import { useState } from 'react';
+import { ChevronLeftIcon, BackspaceIcon } from 'react-native-heroicons/outline';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Base design is iPhone 16: 393x852
+const widthScale = SCREEN_WIDTH / 393;
+const heightScale = SCREEN_HEIGHT / 852;
+const scale = Math.min(widthScale, heightScale);
 
 export default function OtpVerify() {
     const router = useRouter();
     const { phone } = useLocalSearchParams();
     const [code, setCode] = useState(['', '', '', '']);
 
-    // Custom numeric keypad logic
+    // Mask phone number for display
+    const maskPhone = (phoneNum: string) => {
+        if (!phoneNum) return '+917004 54XX3X';
+        const clean = phoneNum.replace(/\D/g, '');
+        if (clean.length >= 10) {
+            return `+91${clean.slice(0, 4)}${clean.slice(4, 6)}XX${clean.slice(-2)}X`;
+        }
+        return phoneNum;
+    };
+
     const handleNumberPress = (num: string) => {
         const nextIndex = code.findIndex(digit => digit === '');
         if (nextIndex !== -1) {
@@ -19,7 +35,7 @@ export default function OtpVerify() {
             // Auto-submit if filled
             if (nextIndex === 3) {
                 setTimeout(() => {
-                    router.push('/create-username');
+                    router.push('/gender-select');
                 }, 500);
             }
         }
@@ -37,75 +53,115 @@ export default function OtpVerify() {
     return (
         <View className="flex-1 bg-white">
             <View className="flex-1 px-6 pt-12">
-                <View className="flex-row items-center mb-8">
-                    <TouchableOpacity onPress={() => router.back()}>
-                        <ChevronLeft size={24} color="black" />
+                {/* Header with back button and centered progress bar */}
+                <View className="relative mb-8">
+                    {/* Back button - absolutely positioned */}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="absolute left-0 top-0 z-10"
+                    >
+                        <ChevronLeftIcon size={24} color="black" />
                     </TouchableOpacity>
 
-                    {/* Segmented Progress Bar - Step 3/10 */}
-                    <View className="flex-1 flex-row mx-4 gap-1">
-                        <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-                        <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-                        <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-                        <View className="h-1 flex-1 bg-gray-200 rounded-full" />
+                    {/* Progress Bar - Step 3/5 - Centered */}
+                    <View className="flex-row justify-center gap-1">
+                        <View className="h-1 w-8 bg-[#ccfd51] rounded-full" />
+                        <View className="h-1 w-8 bg-[#ccfd51] rounded-full" />
+                        <View className="h-1 w-8 bg-[#ccfd51] rounded-full" />
+                        <View className="h-1 w-8 bg-gray-200 rounded-full" />
+                        <View className="h-1 w-8 bg-gray-200 rounded-full" />
                     </View>
                 </View>
 
-                <View className="items-center mb-12">
-                    <Text className="text-black text-2xl font-bold mb-2">
+                {/* Title and subtitle */}
+                <View className="items-center mb-8 mt-8">
+                    <Text className="text-black text-xl font-bold mb-2 text-center">
                         Help us to verify your account
                     </Text>
-                    <Text className="text-gray-500">
-                        we've sent a code to {phone || '+91700454XX3X'}
+                    <Text className="text-gray-400 text-sm">
+                        we've sent a code to {maskPhone(phone as string)}
                     </Text>
                 </View>
 
-                <View className="flex-row justify-center space-x-4 mb-12 gap-4">
+                {/* OTP Input Circles */}
+                <View className="flex-row justify-center gap-4 mb-12">
                     {code.map((digit, index) => (
-                        <View key={index} className={`w-16 h-16 rounded-full items-center justify-center ${digit ? 'bg-[#f9f9f9] border border-gray-300' : 'bg-gray-100'}`}>
-                            <Text className={`text-2xl font-bold ${digit ? 'text-black' : 'text-gray-400'}`}>{digit}</Text>
+                        <View
+                            key={index}
+                            className="items-center justify-center"
+                            style={{
+                                width: Math.round(60 * scale),
+                                height: Math.round(60 * scale),
+                                borderRadius: Math.round(30 * scale),
+                                backgroundColor: index === 0 && !digit ? '#F7F8DB' : '#E8E8E8',
+                            }}
+                        >
+                            <Text className="text-2xl font-bold text-black">{digit}</Text>
                         </View>
                     ))}
                 </View>
+            </View>
 
-                {/* Custom Keypad */}
-                <View className="bg-gray-50 rounded-t-3xl p-6 pb-12 mt-auto">
-                    <View className="flex-row justify-between mb-4">
-                        {[1, 2, 3].map(num => (
-                            <TouchableOpacity key={num} onPress={() => handleNumberPress(num.toString())} className="flex-1 items-center py-4 bg-white m-1 rounded-xl shadow-sm border border-gray-100">
-                                <Text className="text-2xl font-medium text-black">{num}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                    <View className="flex-row justify-between mb-4">
-                        {[4, 5, 6].map(num => (
-                            <TouchableOpacity key={num} onPress={() => handleNumberPress(num.toString())} className="flex-1 items-center py-4 bg-white m-1 rounded-xl shadow-sm border border-gray-100">
-                                <Text className="text-2xl font-medium text-black">{num}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                    <View className="flex-row justify-between mb-4">
-                        {[7, 8, 9].map(num => (
-                            <TouchableOpacity key={num} onPress={() => handleNumberPress(num.toString())} className="flex-1 items-center py-4 bg-white m-1 rounded-xl shadow-sm border border-gray-100">
-                                <Text className="text-2xl font-medium text-black">{num}</Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                    <View className="flex-row justify-between mb-4">
-                        <View className="flex-1 m-1" />
-                        <TouchableOpacity onPress={() => handleNumberPress('0')} className="flex-1 items-center py-4 bg-white m-1 rounded-xl shadow-sm border border-gray-100">
-                            <Text className="text-2xl font-medium text-black">0</Text>
+            {/* Custom Numeric Keypad */}
+            <View className="bg-[#F5F5F5] px-4 pt-4 pb-8">
+                {/* Row 1: 1 2 3 */}
+                <View className="flex-row mb-1">
+                    {[1, 2, 3].map(num => (
+                        <TouchableOpacity
+                            key={num}
+                            onPress={() => handleNumberPress(num.toString())}
+                            className="flex-1 items-center py-4 bg-white m-0.5"
+                            style={{ borderRadius: 4 }}
+                        >
+                            <Text className="text-xl font-medium text-black">{num}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={handleDelete} className="flex-1 items-center justify-center m-1">
-                            <Delete size={28} color="black" />
+                    ))}
+                </View>
+
+                {/* Row 2: 4 5 6 */}
+                <View className="flex-row mb-1">
+                    {[4, 5, 6].map(num => (
+                        <TouchableOpacity
+                            key={num}
+                            onPress={() => handleNumberPress(num.toString())}
+                            className="flex-1 items-center py-4 bg-white m-0.5"
+                            style={{ borderRadius: 4 }}
+                        >
+                            <Text className="text-xl font-medium text-black">{num}</Text>
                         </TouchableOpacity>
-                    </View>
+                    ))}
+                </View>
+
+                {/* Row 3: 7 8 9 */}
+                <View className="flex-row mb-1">
+                    {[7, 8, 9].map(num => (
+                        <TouchableOpacity
+                            key={num}
+                            onPress={() => handleNumberPress(num.toString())}
+                            className="flex-1 items-center py-4 bg-white m-0.5"
+                            style={{ borderRadius: 4 }}
+                        >
+                            <Text className="text-xl font-medium text-black">{num}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+                {/* Row 4: empty, 0, delete */}
+                <View className="flex-row">
+                    <View className="flex-1 m-0.5" />
+                    <TouchableOpacity
+                        onPress={() => handleNumberPress('0')}
+                        className="flex-1 items-center py-4 bg-white m-0.5"
+                        style={{ borderRadius: 4 }}
+                    >
+                        <Text className="text-xl font-medium text-black">0</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={handleDelete}
+                        className="flex-1 items-center justify-center py-4 m-0.5"
+                    >
+                        <BackspaceIcon size={24} color="black" />
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>

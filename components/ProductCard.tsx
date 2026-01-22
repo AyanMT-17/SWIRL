@@ -1,5 +1,6 @@
 import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { Heart, X, Share2, Plus } from 'lucide-react-native';
+import { HeartIcon, XMarkIcon, ShareIcon, PlusIcon } from 'react-native-heroicons/outline';
+import { HeartIcon as HeartSolidIcon } from 'react-native-heroicons/solid';
 
 const { width, height } = Dimensions.get('window');
 
@@ -64,14 +65,14 @@ export default function ProductCard({ product, onLike, onDislike, onShare }: Pro
                         onPress={onDislike}
                         className="w-16 h-16 bg-white rounded-3xl items-center justify-center shadow-lg"
                     >
-                        <X size={32} color="black" />
+                        <XMarkIcon size={32} color="black" />
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={onShare}
                         className="w-12 h-12 bg-transparent items-center justify-center"
                     >
-                        <Share2 size={28} color="black" />
+                        <ShareIcon size={28} color="black" />
                         {/* The design shows an upload/share icon, closest is Share2 or Upload */}
                     </TouchableOpacity>
 
@@ -79,7 +80,7 @@ export default function ProductCard({ product, onLike, onDislike, onShare }: Pro
                         onPress={onLike}
                         className="w-16 h-16 bg-white rounded-3xl items-center justify-center shadow-lg"
                     >
-                        <Heart size={32} color="#eecfb4" fill="#eecfb4" />
+                        <HeartSolidIcon size={32} color="#eecfb4" />
                     </TouchableOpacity>
                 </View>
             </View>

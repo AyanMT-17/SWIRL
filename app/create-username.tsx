@@ -1,114 +1,104 @@
-import { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-  Image,
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-// import { supabase } from '@/lib/supabase'; // Removed
-import { ArrowLeft, ChevronLeft } from 'lucide-react-native';
+import { useState } from 'react';
+import { ChevronLeftIcon, ArrowRightIcon } from 'react-native-heroicons/outline';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Base design is iPhone 16: 393x852
+const widthScale = SCREEN_WIDTH / 393;
+const heightScale = SCREEN_HEIGHT / 852;
+const scale = Math.min(widthScale, heightScale);
+
+// Button dimensions
+const BUTTON_HEIGHT = Math.round(86 * heightScale);
+const BUTTON_BORDER_RADIUS = Math.round(24 * scale);
 
 export default function CreateUsername() {
-  const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+    const router = useRouter();
+    const [username, setUsername] = useState('');
 
-  const handleContinue = async () => {
-    if (!username.trim()) {
-      Alert.alert('Error', 'Please enter a username');
-      return;
-    }
+    const handleNext = () => {
+        if (username.length > 0) {
+            router.push('/gender-select');
+        }
+    };
 
-    if (username.length < 3) {
-      Alert.alert('Error', 'Username must be at least 3 characters');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push('/referral-code');
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-white"
-    >
-      <View className="flex-1 pt-12 px-6">
-        <View className="flex-row items-center mb-8">
-          <TouchableOpacity onPress={() => router.back()}>
-            <ChevronLeft size={24} color="black" />
-          </TouchableOpacity>
-
-          {/* Segmented Progress Bar - Step 4/10 */}
-          <View className="flex-1 flex-row mx-4 gap-1">
-            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-            <View className="h-1 flex-1 bg-[#ccfd51] rounded-full" />
-            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-            <View className="h-1 flex-1 bg-gray-200 rounded-full" />
-          </View>
-        </View>
-
-        <View className="mb-4 items-center">
-          {/* Placeholder for user avatar bubble if needed, per design maybe just text */}
-          <View className="w-20 h-20 bg-gray-100 rounded-full mb-4 overflow-hidden border border-gray-200">
-            {/* Displaying placeholder image or keeping it basic */}
-          </View>
-        </View>
-
-        <Text className="text-black text-3xl font-bold text-center mb-2">
-          What should we call you?
-        </Text>
-        <Text className="text-gray-500 text-center mb-12">
-          this helps your friends find you
-        </Text>
-
-        <View>
-          <TextInput
-            className="bg-transparent text-black px-6 py-4 rounded-full text-6xl font-medium text-center"
-            placeholder="name"
-            placeholderTextColor="#eecfb4"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-
-        <View className="flex-row gap-2 mt-4 justify-center">
-        </View>
-
-
-        <TouchableOpacity
-          onPress={handleContinue}
-          disabled={loading}
-          className="bg-[#eecfb4] py-4 rounded-full mt-auto mb-10"
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1 bg-white"
         >
-          <Text className="text-black text-center font-bold text-lg">
-            {loading ? 'Creating...' : 'Next'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
-  );
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View className="flex-1 px-6 pt-12 pb-10">
+                    <View className="relative mb-8">
+                        {/* Back button - absolutely positioned */}
+                        <TouchableOpacity
+                            onPress={() => router.back()}
+                            className="absolute left-0 top-0 z-10"
+                        >
+                            <ChevronLeftIcon size={24} color="black" />
+                        </TouchableOpacity>
+
+                        {/* Progress Bar - Step 2/5 - Centered (Assuming this parallels phone login) */}
+                        <View className="flex-row justify-center gap-1">
+                            <View className="h-1 w-8 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 w-8 bg-[#ccfd51] rounded-full" />
+                            <View className="h-1 w-8 bg-gray-200 rounded-full" />
+                            <View className="h-1 w-8 bg-gray-200 rounded-full" />
+                            <View className="h-1 w-8 bg-gray-200 rounded-full" />
+                        </View>
+                    </View>
+
+                    <View className="items-center mt-8 mb-12">
+                        <Text className="text-black text-2xl font-bold text-center mb-4">
+                            Create your username
+                        </Text>
+                        <Text className="text-gray-500 text-center px-4 leading-6 text-sm">
+                            Choose a unique username for your profile. This is how others will see you on Swirl.
+                        </Text>
+                    </View>
+
+                    <View className="mb-8">
+                        <View className="bg-[#F7F8DB] rounded-full flex-row items-center px-4 py-4">
+                            <Text className="text-gray-500 text-base mr-1">@</Text>
+                            <TextInput
+                                className="flex-1 text-black text-base font-medium"
+                                placeholder="username"
+                                placeholderTextColor="#999"
+                                value={username}
+                                onChangeText={setUsername}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                            />
+                        </View>
+                    </View>
+
+                    <View className="flex-1" />
+
+                    {/* Next Button */}
+                    <TouchableOpacity
+                        onPress={handleNext}
+                        style={{
+                            backgroundColor: '#E4AD82',
+                            height: BUTTON_HEIGHT,
+                            borderRadius: BUTTON_BORDER_RADIUS,
+                            width: SCREEN_WIDTH,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            alignSelf: 'center',
+                            marginBottom: 16,
+                            marginHorizontal: -24,
+                            opacity: username.length > 0 ? 1 : 0.7
+                        }}
+                        disabled={username.length === 0}
+                    >
+                        <Text className="text-black text-center font-semibold text-lg">
+                            Next
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
 }

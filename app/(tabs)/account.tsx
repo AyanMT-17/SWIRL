@@ -1,94 +1,137 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useAuth } from '@/contexts/AuthContext';
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, Alert, Dimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  User,
-  MessageCircle,
-  Heart,
-  Share2,
-  Info,
-  ChevronRight,
-  UserPlus
-} from 'lucide-react-native';
+    ChevronRightIcon,
+    UserIcon,
+    QuestionMarkCircleIcon,
+    MicrophoneIcon,
+    SparklesIcon,
+    Squares2X2Icon,
+    ChevronLeftIcon
+} from 'react-native-heroicons/outline';
+import { useAuth } from '@/contexts/AuthContext';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Base design is iPhone 16: 393x852
+const widthScale = SCREEN_WIDTH / 393;
+const heightScale = SCREEN_HEIGHT / 852;
+const scale = Math.min(widthScale, heightScale);
+
+const HEADER_BORDER_RADIUS = Math.round(24 * scale);
+const FEED_BORDER_RADIUS = Math.round(24 * scale);
+
+const MENU_ITEMS = [
+    { icon: UserIcon, label: 'My account', subLabel: 'view and edit your profile details', route: '/my-account', isModal: false },
+    { icon: MicrophoneIcon, label: 'Speak to the founder', subLabel: 'Report an issue or share your thoughts', route: '/support', isModal: true },
+    { icon: SparklesIcon, label: 'My vibe', subLabel: 'Change your vibe preference and size', route: '/vibe', isModal: true },
+    { icon: Squares2X2Icon, label: 'Connect your Pinterest board', subLabel: 'Coming soon!', route: '/pinterest', isModal: true },
+    { icon: QuestionMarkCircleIcon, label: 'Show app tutorial', route: '/tutorial', isModal: true },
+];
 
 export default function Account() {
-  const { user, signOut } = useAuth();
+    const router = useRouter();
+    const insets = useSafeAreaInsets();
+    const { signOut } = useAuth();
 
-  // Extract first name from email or use default
-  const userName = user?.email?.split('@')[0] || 'User';
-  const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+    const handleNavigation = (item: typeof MENU_ITEMS[0]) => {
+        if (item.label === 'Connect your Pinterest board') {
+            return;
+        }
 
-  const menuItems = [
-    {
-      icon: User,
-      label: 'My account',
-      subtitle: 'View and edit your profile details',
-      onPress: () => { }
-    },
-    {
-      icon: MessageCircle,
-      label: 'Speak to the founder',
-      subtitle: 'Report an issue or share your thoughts',
-      onPress: () => { }
-    },
-    {
-      icon: Heart,
-      label: 'My vibe',
-      subtitle: 'Define your vibe preference and size',
-      onPress: () => { }
-    },
-    {
-      icon: Share2,
-      label: 'Connect your Pinterest board',
-      subtitle: 'Coming soon!',
-      onPress: () => { }
-    },
-    {
-      icon: Info,
-      label: 'Show app tutorial',
-      subtitle: '',
-      onPress: () => { }
-    },
-  ];
+        if (item.isModal && item.route !== '/support') {
+            Alert.alert('Coming Soon', `${item.label} will be available in the next update!`);
+            return;
+        }
 
-  return (
-    <ScrollView className="flex-1 bg-[#f5f5f0]">
-      {/* Header Section */}
-      <View className="bg-white rounded-b-3xl pt-12 px-5 pb-6">
-        <Text className="text-black text-3xl font-bold mb-4">
-          Hey, {displayName}
-        </Text>
+        if (item.route.startsWith('/')) {
+            // @ts-ignore
+            router.push(item.route);
+        }
+    };
 
-        <TouchableOpacity className="flex-row items-center bg-[#f4a261] px-4 py-3 rounded-full self-start">
-          <UserPlus size={18} color="#fff" />
-          <Text className="text-white font-semibold ml-2">Invite friends</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Menu Items */}
-      <View className="px-4 mt-4">
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={item.onPress}
-            className="flex-row items-center bg-white p-4 rounded-2xl mb-2"
-          >
-            <View className="w-10 h-10 items-center justify-center">
-              <item.icon size={20} color="#000" />
+    return (
+        <View style={{ flex: 1, backgroundColor: '#000', paddingBottom: Math.round(94 * heightScale) }}>
+            {/* Floating Header with greeting and invite */}
+            <View
+                style={{
+                    backgroundColor: '#FDFFF2',
+                    zIndex: 50,
+                    overflow: 'hidden',
+                    borderRadius: HEADER_BORDER_RADIUS,
+                    paddingTop: Math.max(insets.top, Math.round(44 * heightScale)),
+                    paddingBottom: Math.round(20 * heightScale),
+                    paddingHorizontal: Math.round(20 * scale),
+                }}
+            >
+                <View>
+                    <Text className="text-2xl font-normal text-black tracking-tight mb-3">Hey, User</Text>
+                    <TouchableOpacity
+                        className="bg-[#E5B58D] py-2.5 px-5 rounded-full flex-row items-center self-start"
+                        onPress={() => { }}
+                    >
+                        <UserIcon size={16} color="#000" strokeWidth={1.5} />
+                        <Text className="font-medium text-sm text-black ml-2">Invite friends</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View className="flex-1 ml-3">
-              <Text className="text-black text-base font-semibold">
-                {item.label}
-              </Text>
-              {item.subtitle ? (
-                <Text className="text-gray-400 text-sm mt-0.5">
-                  {item.subtitle}
-                </Text>
-              ) : null}
+
+            {/* Main Component (Feed) */}
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: '#FDFFF2',
+                    marginTop: Math.round(3 * scale),
+                    borderRadius: FEED_BORDER_RADIUS,
+                    overflow: 'hidden',
+                }}
+            >
+                <ScrollView
+                    className="flex-1"
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 40 }}
+                >
+                    {/* Menu Items */}
+                    <View className="px-0 pt-4">
+                        {MENU_ITEMS.map((item, idx) => (
+                            <TouchableOpacity
+                                key={idx}
+                                onPress={() => handleNavigation(item)}
+                                className={`flex-row items-center py-5 px-6 ${idx !== MENU_ITEMS.length - 1 ? 'border-b border-[#F0EFE9]' : ''
+                                    }`}
+                            >
+                                <View className="mr-4">
+                                    <item.icon size={24} color="#1A1A1A" strokeWidth={1.5} />
+                                </View>
+                                <View className="flex-1">
+                                    <Text className="text-lg font-normal text-black mb-0.5">
+                                        {item.label}
+                                    </Text>
+                                    {item.subLabel && (
+                                        <Text className="text-[#A09F99] text-sm font-normal">
+                                            {item.subLabel}
+                                        </Text>
+                                    )}
+                                </View>
+                                {item.label !== 'Connect your Pinterest board' && (
+                                    <ChevronRightIcon size={20} color="#1A1A1A" />
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* Sign Out Button */}
+                    <TouchableOpacity
+                        onPress={signOut}
+                        className="mx-6 mt-8 py-4 border-t border-[#F0EFE9] items-center"
+                    >
+                        <Text className="text-red-500 font-medium text-base">Sign Out</Text>
+                    </TouchableOpacity>
+
+                </ScrollView>
             </View>
-            <ChevronRight size={20} color="#666" />
-          </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
-  );
+        </View>
+    );
 }

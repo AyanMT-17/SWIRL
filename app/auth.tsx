@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
-import { Check, Apple } from 'lucide-react-native';
+import { CheckIcon } from 'react-native-heroicons/outline';
 
 
 
@@ -93,7 +93,7 @@ export default function Auth() {
                 onPress={() => setRememberMe(!rememberMe)}
               >
                 <View className={`w-5 h-5 rounded border border-gray-400 mr-2 items-center justify-center ${rememberMe ? 'bg-[#eecfb4] border-[#eecfb4]' : 'bg-transparent'}`}>
-                  {rememberMe && <Check size={14} color="black" />}
+                  {rememberMe && <CheckIcon size={14} color="black" />}
                 </View>
                 <Text className="text-gray-400">Remember me</Text>
               </TouchableOpacity>
@@ -127,7 +127,7 @@ export default function Auth() {
                 <Text className="font-bold text-black">Google</Text>
               </TouchableOpacity>
               <TouchableOpacity className="flex-1 bg-white py-3 rounded-full flex-row items-center justify-center">
-                <Apple size={20} color="black" className="mr-2" />
+                <Text className="text-lg mr-2"></Text>
                 <Text className="font-bold text-black">Apple</Text>
               </TouchableOpacity>
             </View>

@@ -13,7 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { MOCK_PRODUCTS } from '@/constants/mockData';
-import { ArrowLeft, ShoppingBag } from 'lucide-react-native';
+import { ArrowLeftIcon, ShoppingCartIcon } from 'react-native-heroicons/outline';
 
 const { width } = Dimensions.get('window');
 
@@ -103,13 +103,13 @@ export default function ProductDetail() {
           onPress={() => router.back()}
           className="bg-black/50 p-3 rounded-full"
         >
-          <ArrowLeft size={24} color="#fff" />
+          <ArrowLeftIcon size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
       <View className="absolute top-12 right-4 z-10">
         <TouchableOpacity className="bg-black/50 p-3 rounded-full">
-          <ShoppingBag size={24} color="#fff" />
+          <ShoppingCartIcon size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 

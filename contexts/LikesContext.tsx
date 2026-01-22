@@ -12,6 +12,7 @@ export interface Product {
     description?: string;
     original_price?: number | null;
     discount_percentage?: number | null;
+    categories?: string[];
 }
 
 export interface ProductInteraction {
@@ -39,6 +40,7 @@ interface LikesContextType {
     getInteractions: () => ProductInteraction[];
     clearInteractions: () => Promise<void>;
     undoLastAction: () => Promise<Product | null>;
+    resetAll: () => Promise<void>;
     isLoading: boolean;
 }
 
@@ -239,6 +241,17 @@ export function LikesProvider({ children }: { children: React.ReactNode }) {
                 getInteractions,
                 clearInteractions,
                 undoLastAction,
+                resetAll: async () => {
+                    setLikedProducts([]);
+                    setSkippedProductIds([]);
+                    setInteractions([]);
+                    setLastAction(null);
+                    await saveData({
+                        likedProducts: [],
+                        skippedProductIds: [],
+                        interactions: [],
+                    });
+                },
                 isLoading,
             }}
         >

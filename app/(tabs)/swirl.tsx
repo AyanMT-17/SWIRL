@@ -1,9 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, FlatList, TextInput, Modal, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, X, Plus } from 'lucide-react-native';
-import { useLikes } from '@/contexts/LikesContext';
+import { ChevronLeftIcon, XMarkIcon, PlusIcon, StarIcon, ShoppingCartIcon, PhotoIcon } from 'react-native-heroicons/outline';
+import { MOCK_PRODUCTS } from '@/constants/mockData';
+import { useRecommendation } from '@/contexts/RecommendationContext';
 import { useCart } from '@/contexts/CartContext';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Base design is iPhone 16: 393x852
+const widthScale = SCREEN_WIDTH / 393;
+const heightScale = SCREEN_HEIGHT / 852;
+const scale = Math.min(widthScale, heightScale);
+
+const CARD_WIDTH = (SCREEN_WIDTH - 48) / 2; // 2 columns with padding
+const COLLECTION_CARD_WIDTH = (SCREEN_WIDTH - 64) / 3; // 3 columns
+
+// Responsive dimensions
+const HEADER_BORDER_RADIUS = Math.round(24 * scale);
+const FEED_BORDER_RADIUS = Math.round(24 * scale);
 
 type Tab = 'swirls' | 'collection';
 
@@ -13,150 +28,214 @@ export default function Swirl() {
     const [showAddToCollection, setShowAddToCollection] = useState(false);
     const [showNewCollection, setShowNewCollection] = useState(false);
     const [collectionName, setCollectionName] = useState('');
+    const [selectedProductForCollection, setSelectedProductForCollection] = useState<any>(null);
 
-    const { likedProducts, removeFromLikes } = useLikes();
+    const { likedProductIds, collections, createCollection, addToCollection } = useRecommendation();
     const { addToCart } = useCart();
 
+    // Derive liked products from IDs
+    const likedProducts = MOCK_PRODUCTS.filter(p => likedProductIds.includes(p.id));
+
+    // Calculate discounted price (mock 50% off)
+    const getOriginalPrice = (price: number) => Math.round(price * 1.5);
+
+    const handleAddToCollection = (product: any) => {
+        setSelectedProductForCollection(product);
+        setShowAddToCollection(true);
+    };
+
+    const handleCreateCollection = async () => {
+        if (collectionName.trim() && selectedProductForCollection) {
+            await createCollection(collectionName, selectedProductForCollection);
+            setCollectionName('');
+            setShowNewCollection(false);
+            setShowAddToCollection(false);
+        }
+    };
+
+    const displayCollections = collections.length > 0 ? collections : [];
+
+
     return (
-        <View className="flex-1 bg-white">
-            {/* Header */}
+        <View style={{ flex: 1, backgroundColor: '#000', paddingBottom: Math.round(94 * heightScale) }}>
+            {/* Floating Header - Matches home page style */}
             <View
-                className="bg-[#F5F3EE] border-b border-gray-200"
-                style={{ paddingTop: insets.top }}
+                style={{
+                    backgroundColor: '#FDFFF2',
+                    zIndex: 50,
+                    overflow: 'hidden',
+                    borderRadius: HEADER_BORDER_RADIUS,
+                    paddingTop: Math.max(insets.top, Math.round(44 * heightScale)),
+                    paddingBottom: Math.round(16 * heightScale),
+                    paddingHorizontal: Math.round(16 * scale),
+                }}
             >
-                <View className="flex-row items-center justify-between px-4 py-3">
+                <View className="flex-row items-center">
                     <TouchableOpacity className="w-10 h-10 items-center justify-center">
-                        <ChevronLeft size={24} color="#000" strokeWidth={2} />
+                        <ChevronLeftIcon size={24} color="#000" strokeWidth={2} />
                     </TouchableOpacity>
 
-                    {/* Tab Switcher */}
-                    <View className="flex-row gap-6">
+                    {/* Tab Switcher - Centered */}
+                    <View className="flex-1 flex-row justify-center gap-10">
                         <TouchableOpacity onPress={() => setActiveTab('swirls')}>
-                            <Text className={`text-sm font-semibold ${activeTab === 'swirls' ? 'text-gray-900' : 'text-gray-400'}`}>
-                                My SWIRLs
+                            <Text className={`text-base font-semibold ${activeTab === 'swirls' ? 'text-gray-900' : 'text-gray-400'}`}>
+                                My SWIRL.s'
                             </Text>
                             {activeTab === 'swirls' && (
-                                <View className="h-0.5 bg-black mt-1 rounded-full" />
+                                <View className="h-0.5 bg-[#ccfd51] mt-1 rounded-full w-24" />
                             )}
                         </TouchableOpacity>
 
                         <TouchableOpacity onPress={() => setActiveTab('collection')}>
-                            <Text className={`text-sm font-semibold ${activeTab === 'collection' ? 'text-gray-900' : 'text-gray-400'}`}>
+                            <Text className={`text-base font-semibold ${activeTab === 'collection' ? 'text-gray-900' : 'text-gray-400'}`}>
                                 My Collection
                             </Text>
                             {activeTab === 'collection' && (
-                                <View className="h-0.5 bg-black mt-1 rounded-full" />
+                                <View className="h-0.5 bg-[#ccfd51] mt-1 rounded-full w-24" />
                             )}
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity className="w-10 h-10 items-center justify-center">
-                        {/* Placeholder for right icon */}
-                    </TouchableOpacity>
+                    {/* Empty spacer for balance */}
+                    <View className="w-10 h-10" />
                 </View>
             </View>
 
-            {/* Content */}
-            <ScrollView className="flex-1">
-                {activeTab === 'swirls' ? (
-                    // My SWIRLs Tab
-                    <View className="p-4">
-                        {likedProducts.length === 0 ? (
-                            <View className="items-center justify-center py-20">
-                                <Text className="text-6xl mb-4">💫</Text>
-                                <Text className="text-xl font-bold text-gray-900 mb-2">No SWIRLs yet!</Text>
-                                <Text className="text-gray-500 text-center">
-                                    Swipe right on products you love{"\n"}to add them here.
-                                </Text>
-                            </View>
-                        ) : (
-                            <FlatList
-                                data={likedProducts}
-                                numColumns={2}
-                                scrollEnabled={false}
-                                keyExtractor={(item) => item.id}
-                                columnWrapperStyle={{ gap: 12 }}
-                                contentContainerStyle={{ gap: 12 }}
-                                renderItem={({ item }) => (
-                                    <View className="flex-1 bg-white rounded-3xl overflow-hidden border border-gray-200">
-                                        {/* Remove Button */}
-                                        <TouchableOpacity
-                                            className="absolute top-3 right-3 z-10 w-6 h-6 bg-white rounded-full items-center justify-center"
-                                            onPress={() => removeFromLikes(item.id)}
+            {/* Feed Section - Separated with gap and rounded corners */}
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: '#FDFFF2',
+                    marginTop: Math.round(3 * scale),
+                    borderRadius: FEED_BORDER_RADIUS,
+                    marginBottom: Math.round(0.05 * scale),
+                    overflow: 'hidden',
+                }}
+            >
+                <ScrollView
+                    className="flex-1"
+                    contentContainerStyle={{ paddingBottom: 120 }}
+                    showsVerticalScrollIndicator={false}
+                >
+                    {activeTab === 'swirls' ? (
+                        // My SWIRLs Tab
+                        <View className="px-4 pt-4">
+                            {likedProducts.length === 0 ? (
+                                <View className="items-center justify-center py-20">
+                                    <Text className="text-6xl mb-4">💫</Text>
+                                    <Text className="text-xl font-bold text-gray-900 mb-2">No SWIRLs yet!</Text>
+                                    <Text className="text-gray-500 text-center">
+                                        Swipe right on products you love{"\n"}to add them here.
+                                    </Text>
+                                </View>
+                            ) : (
+                                <FlatList
+                                    data={likedProducts}
+                                    numColumns={2}
+                                    scrollEnabled={false}
+                                    keyExtractor={(item) => item.id}
+                                    columnWrapperStyle={{ gap: 12 }}
+                                    contentContainerStyle={{ gap: 16 }}
+                                    renderItem={({ item }) => (
+                                        <View
+                                            className="bg-white rounded-3xl overflow-hidden"
+                                            style={{ width: CARD_WIDTH }}
                                         >
-                                            <X size={16} color="#000" />
-                                        </TouchableOpacity>
+                                            <View className="relative">
+                                                <Image
+                                                    source={{ uri: item.product_images[0]?.image_url }}
+                                                    style={{ width: '100%', height: CARD_WIDTH * 1.1 }}
+                                                    resizeMode="cover"
+                                                />
 
-                                        {/* Product Image */}
-                                        <Image
-                                            source={{ uri: item.product_images[0]?.image_url }}
-                                            className="w-full h-48"
-                                            resizeMode="cover"
-                                        />
+                                                {/* Rating Badge */}
+                                                <View className="absolute bottom-2 left-2 flex-row items-center bg-white/90 px-2 py-1 rounded-full">
+                                                    <Text className="text-xs font-semibold text-gray-900 mr-1">4.5</Text>
+                                                    <StarIcon size={10} color="#000" />
+                                                </View>
+                                            </View>
 
-                                        {/* Product Info */}
-                                        <View className="p-3">
-                                            <Text className="text-xs text-gray-500 mb-1">{item.brand}</Text>
-                                            <Text className="text-sm font-bold text-gray-900 mb-1" numberOfLines={1}>
-                                                {item.name}
-                                            </Text>
-                                            <Text className="text-sm font-bold text-gray-900 mb-3">
-                                                ₹ {item.price.toLocaleString('en-IN')}
-                                            </Text>
+                                            {/* Product Info */}
+                                            <View className="p-3">
+                                                <Text className="text-xs text-gray-500 mb-0.5">{item.brand}</Text>
+                                                <Text className="text-sm font-bold text-gray-900 mb-1" numberOfLines={1}>
+                                                    {item.name}
+                                                </Text>
 
-                                            {/* Action Buttons */}
-                                            <View className="flex-row gap-2">
-                                                <TouchableOpacity
-                                                    onPress={() => setShowAddToCollection(true)}
-                                                    className="flex-1 bg-[#F5F3EE] py-2 rounded-lg items-center"
-                                                >
-                                                    <Text className="text-xs font-semibold text-gray-900">Add to Collection</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity
-                                                    className="bg-[#E8B298] px-4 py-2 rounded-lg items-center justify-center"
-                                                    onPress={() => addToCart(item, 'M')}
-                                                >
-                                                    <Text className="text-lg">🛒</Text>
-                                                </TouchableOpacity>
+                                                {/* Price Row */}
+                                                <View className="flex-row items-center gap-2 mb-3">
+                                                    <Text className="text-sm font-bold text-gray-900">
+                                                        ₹ {item.price.toLocaleString('en-IN')}
+                                                    </Text>
+                                                    <Text className="text-xs text-gray-400 line-through">
+                                                        ₹{getOriginalPrice(item.price).toLocaleString('en-IN')}
+                                                    </Text>
+                                                    <View className="bg-[#FEE2E2] px-1.5 py-0.5 rounded">
+                                                        <Text className="text-[10px] font-semibold text-red-600">50%off</Text>
+                                                    </View>
+                                                </View>
+
+                                                {/* Action Buttons */}
+                                                <View className="flex-row gap-2">
+                                                    <TouchableOpacity
+                                                        onPress={() => handleAddToCollection(item)}
+                                                        className="flex-1 bg-white border border-gray-300 py-2.5 rounded-xl items-center"
+                                                    >
+                                                        <Text className="text-[11px] font-semibold text-gray-900">Add to Collection</Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity
+                                                        className="bg-[#E8B298] w-12 py-2.5 rounded-xl items-center justify-center"
+                                                        onPress={() => addToCart(item, 'M')}
+                                                    >
+                                                        <ShoppingCartIcon size={18} color="#000" />
+                                                    </TouchableOpacity>
+                                                </View>
                                             </View>
                                         </View>
-                                    </View>
-                                )}
-                            />
-                        )}
-                    </View>
-                ) : (
-                    // My Collection Tab
-                    <View className="p-4">
-                        <View className="flex-row flex-wrap gap-3">
-                            {likedProducts.slice(0, 6).map((item, index) => (
-                                <View
-                                    key={item.id}
-                                    className={`rounded-2xl overflow-hidden ${index % 3 === 0 ? 'w-[48%]' : 'w-[30%]'}`}
-                                    style={{ height: index % 3 === 0 ? 200 : 150 }}
-                                >
-                                    <Image
-                                        source={{ uri: item.product_images[0]?.image_url }}
-                                        className="w-full h-full"
-                                        resizeMode="cover"
-                                    />
-                                    <View className="absolute bottom-2 right-2 bg-white/90 px-2 py-1 rounded-full">
-                                        <Text className="text-xs font-semibold text-gray-900">{item.brand}</Text>
-                                    </View>
-                                </View>
-                            ))}
-
-                            {/* Add New Collection Button */}
-                            <TouchableOpacity
-                                onPress={() => setShowNewCollection(true)}
-                                className="w-[30%] h-[150px] rounded-2xl border-2 border-dashed border-gray-300 items-center justify-center"
-                            >
-                                <Plus size={32} color="#999" strokeWidth={2} />
-                            </TouchableOpacity>
+                                    )}
+                                />
+                            )}
                         </View>
-                    </View>
-                )}
-            </ScrollView>
+                    ) : (
+                        // My Collection Tab
+                        <View className="p-4">
+                            <View className="flex-row flex-wrap gap-3">
+                                {collections.map((collection) => (
+                                    <TouchableOpacity
+                                        key={collection.id}
+                                        className="rounded-2xl overflow-hidden bg-[#E8E4DB]"
+                                        style={{ width: COLLECTION_CARD_WIDTH, height: COLLECTION_CARD_WIDTH * 1.2 }}
+                                    >
+                                        <Image
+                                            source={{ uri: collection.image }}
+                                            className="w-full h-full"
+                                            resizeMode="cover"
+                                        />
+                                        {/* Collection Name Label */}
+                                        <View className="absolute bottom-0 left-0 right-0 bg-[#D4CFC4]/90 py-2 px-2">
+                                            <Text className="text-xs font-semibold text-gray-800 text-center" numberOfLines={1}>
+                                                {collection.name}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+
+                                {/* Add New Collection Button */}
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setSelectedProductForCollection(likedProducts[0] || null);
+                                        setShowNewCollection(true);
+                                    }}
+                                    className="rounded-2xl border-2 border-dashed border-gray-300 items-center justify-center bg-white"
+                                    style={{ width: COLLECTION_CARD_WIDTH, height: COLLECTION_CARD_WIDTH * 1.2 }}
+                                >
+                                    <PlusIcon size={32} color="#999" strokeWidth={2} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    )}
+                </ScrollView>
+            </View>
 
             {/* Add to Collection Modal */}
             <Modal
@@ -166,31 +245,49 @@ export default function Swirl() {
                 onRequestClose={() => setShowAddToCollection(false)}
             >
                 <View className="flex-1 bg-black/50 justify-end">
-                    <View className="bg-white rounded-t-3xl p-6 h-[70%]">
+                    <View className="bg-[#F5F3EE] rounded-t-3xl p-5" style={{ height: '60%' }}>
+                        {/* Header */}
                         <View className="flex-row items-center justify-between mb-6">
-                            <TouchableOpacity onPress={() => setShowAddToCollection(false)}>
-                                <X size={24} color="#000" />
+                            <TouchableOpacity
+                                onPress={() => setShowAddToCollection(false)}
+                                className="w-8 h-8 items-center justify-center"
+                            >
+                                <XMarkIcon size={22} color="#000" />
                             </TouchableOpacity>
-                            <Text className="text-lg font-bold">Add to Collection</Text>
-                            <TouchableOpacity onPress={() => setShowNewCollection(true)}>
-                                <Plus size={24} color="#000" />
+                            <Text className="text-base font-bold text-gray-900">Add to Collection</Text>
+                            <TouchableOpacity
+                                onPress={() => setShowNewCollection(true)}
+                                className="w-8 h-8 items-center justify-center"
+                            >
+                                <PlusIcon size={22} color="#000" />
                             </TouchableOpacity>
                         </View>
 
-                        <ScrollView>
+                        {/* Collections Grid */}
+                        <ScrollView showsVerticalScrollIndicator={false}>
                             <View className="flex-row flex-wrap gap-3">
-                                {likedProducts.slice(0, 6).map((item) => (
+                                {collections.map((collection) => (
                                     <TouchableOpacity
-                                        key={item.id}
-                                        className="w-[30%] h-32 rounded-2xl overflow-hidden border border-gray-200"
+                                        key={collection.id}
+                                        className="rounded-2xl overflow-hidden bg-[#E8E4DB]"
+                                        style={{ width: COLLECTION_CARD_WIDTH, height: COLLECTION_CARD_WIDTH * 1.2 }}
+                                        onPress={async () => {
+                                            if (selectedProductForCollection) {
+                                                await addToCollection(collection.id, selectedProductForCollection.id);
+                                            }
+                                            setShowAddToCollection(false);
+                                        }}
                                     >
                                         <Image
-                                            source={{ uri: item.product_images[0]?.image_url }}
+                                            source={{ uri: collection.image }}
                                             className="w-full h-full"
                                             resizeMode="cover"
                                         />
-                                        <View className="absolute bottom-1 left-1 bg-white/90 px-2 py-0.5 rounded-full">
-                                            <Text className="text-[10px] font-semibold">{item.brand}</Text>
+                                        {/* Collection Name Label */}
+                                        <View className="absolute bottom-0 left-0 right-0 bg-[#D4CFC4]/90 py-2 px-2">
+                                            <Text className="text-xs font-semibold text-gray-800 text-center" numberOfLines={1}>
+                                                {collection.name}
+                                            </Text>
                                         </View>
                                     </TouchableOpacity>
                                 ))}
@@ -208,30 +305,53 @@ export default function Swirl() {
                 onRequestClose={() => setShowNewCollection(false)}
             >
                 <View className="flex-1 bg-black/50 justify-end">
-                    <View className="bg-white rounded-t-3xl p-6 h-[50%]">
+                    <View className="bg-[#F5F3EE] rounded-t-3xl p-5" style={{ height: '55%' }}>
+                        {/* Header */}
                         <View className="flex-row items-center justify-between mb-6">
-                            <TouchableOpacity onPress={() => setShowNewCollection(false)}>
-                                <X size={24} color="#000" />
+                            <TouchableOpacity
+                                onPress={() => setShowNewCollection(false)}
+                                className="w-8 h-8 items-center justify-center"
+                            >
+                                <XMarkIcon size={22} color="#000" />
                             </TouchableOpacity>
-                            <Text className="text-lg font-bold">New Collection</Text>
-                            <TouchableOpacity className="bg-[#E8B298] px-4 py-2 rounded-lg">
+                            <Text className="text-base font-bold text-gray-900">New Collection</Text>
+                            <TouchableOpacity
+                                className="bg-[#E8B298] px-4 py-2 rounded-lg"
+                                onPress={handleCreateCollection}
+                            >
                                 <Text className="text-sm font-bold text-gray-900">Create</Text>
                             </TouchableOpacity>
                         </View>
 
+                        {/* Collection Image Preview */}
                         <View className="items-center mb-6">
-                            <View className="w-32 h-32 bg-gray-200 rounded-2xl items-center justify-center mb-4">
-                                <Plus size={40} color="#999" />
+                            <View className="bg-white rounded-2xl p-3 shadow-sm">
+                                {selectedProductForCollection?.product_images[0]?.image_url ? (
+                                    <Image
+                                        source={{ uri: selectedProductForCollection.product_images[0].image_url }}
+                                        className="w-28 h-32 rounded-xl"
+                                        resizeMode="cover"
+                                    />
+                                ) : (
+                                    <View className="w-28 h-32 rounded-xl bg-gray-100 items-center justify-center">
+                                        <PhotoIcon size={32} color="#999" />
+                                    </View>
+                                )}
+                                {/* Small edit icon */}
+                                <TouchableOpacity className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full items-center justify-center shadow-sm">
+                                    <PlusIcon size={14} color="#666" />
+                                </TouchableOpacity>
                             </View>
                         </View>
 
+                        {/* Collection Name Input */}
                         <View className="mb-4">
-                            <Text className="text-sm font-semibold text-gray-700 mb-2">Collection Name</Text>
                             <TextInput
                                 value={collectionName}
                                 onChangeText={setCollectionName}
-                                placeholder="Enter collection name"
-                                className="bg-[#F5F3EE] px-4 py-3 rounded-xl text-gray-900"
+                                placeholder="Collection Name"
+                                placeholderTextColor="#9ca3af"
+                                className="bg-white px-4 py-4 rounded-xl text-gray-900 text-base border border-gray-200"
                             />
                         </View>
                     </View>

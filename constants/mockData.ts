@@ -1,3 +1,6 @@
+
+import rawData from './processed_mock_data.json';
+
 export const MOCK_CATEGORIES = [
     {
         id: '1',
@@ -37,173 +40,100 @@ export const MOCK_CATEGORIES = [
     }
 ];
 
-export const MOCK_PRODUCTS = [
-    {
-        id: '1',
-        name: 'Oversized Hoodie',
-        price: 4500,
-        original_price: 6000,
-        brand: 'ESSENTIALS',
-        category: 'Top',
-        has_free_delivery: true,
-        delivery_date: 'Tomorrow, Dec 14',
-        discount_percentage: 25,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/1183266/pexels-photo-1183266.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'High quality cotton blend oversized hoodie for maximum comfort and style.',
-    },
-    {
-        id: '2',
-        name: 'Cargo Pants',
-        price: 3500,
-        original_price: null,
-        brand: 'NIKE',
-        category: 'Bottom',
-        has_free_delivery: false,
-        delivery_date: 'Mon, Dec 16',
-        discount_percentage: null,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/1598508/pexels-photo-1598508.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Durable and stylish cargo pants with multiple pockets.',
-    },
-    {
-        id: '3',
-        name: 'Retro Sneakers',
-        price: 8500,
-        original_price: 9500,
-        brand: 'NEW BALANCE',
-        category: 'Footwear',
-        has_free_delivery: true,
-        delivery_date: 'Sun, Dec 15',
-        discount_percentage: 10,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Classic retro style sneakers with modern comfort technology.',
-    },
-    {
-        id: '4',
-        name: 'Graphic Tee',
-        price: 1500,
-        original_price: 2000,
-        brand: 'STUSSY',
-        category: 'Top',
-        has_free_delivery: true,
-        delivery_date: 'Tomorrow, Dec 14',
-        discount_percentage: 25,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/1656684/pexels-photo-1656684.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Cotton t-shirt with unique graphic print.',
-    },
-    {
-        id: '5',
-        name: 'Varsity Jacket',
-        price: 12000,
-        original_price: 15000,
-        brand: 'OFF-WHITE',
-        category: 'Premium',
-        has_free_delivery: true,
-        delivery_date: 'Tue, Dec 17',
-        discount_percentage: 20,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/1192601/pexels-photo-1192601.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Premium wool blend varsity jacket with leather sleeves.',
-    },
-    {
-        id: '6',
-        name: 'Denim Jacket',
-        price: 5500,
-        original_price: null,
-        brand: 'LEVIS',
-        category: 'Top',
-        has_free_delivery: true,
-        delivery_date: 'Tomorrow, Dec 14',
-        discount_percentage: null,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/1040945/pexels-photo-1040945.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Classic fit denim jacket in vintage wash.',
-    },
-    {
-        id: '7',
-        name: 'Beanie',
-        price: 1200,
-        original_price: 1500,
-        brand: 'CARHARTT',
-        category: 'Accessories',
-        has_free_delivery: false,
-        delivery_date: 'Wed, Dec 18',
-        discount_percentage: 20,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/984619/pexels-photo-984619.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Warm acrylic knit beanie with logo patch.',
-    },
-    {
-        id: '8',
-        name: 'Running Shoes',
-        price: 9500,
-        original_price: null,
-        brand: 'ADIDAS',
-        category: 'Footwear',
-        has_free_delivery: true,
-        delivery_date: 'Tomorrow, Dec 14',
-        discount_percentage: null,
-        product_images: [{ image_url: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=800' }],
-        description: 'Lightweight running shoes with boost technology.',
-    }
-];
+const BRAND_LOGOS: Record<string, string> = {
+    'Roadster': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Roadster_Logos.png',
+    'H&M': 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/H%26M-Logo.svg/1200px-H%26M-Logo.svg.png',
+    'HRX by Hrithik Roshan': 'https://upload.wikimedia.org/wikipedia/commons/2/28/HRX_Logo.png',
+    'WROGN': 'https://upload.wikimedia.org/wikipedia/commons/8/82/Wrogn_Logo.png',
+    'Nike': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/1200px-Logo_NIKE.svg.png',
+    'Adidas': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/1200px-Adidas_Logo.svg.png',
+    'Puma': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Puma-logo-1.png/640px-Puma-logo-1.png',
+    'Zara': 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Zara_Logo.svg',
+    'Levis': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Levi%27s_logo.svg/2560px-Levi%27s_logo.svg.png',
+    'Tommy Hilfiger': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Tommy_Hilfiger_Logo.svg/1200px-Tommy_Hilfiger_Logo.svg.png',
+    'Jack & Jones': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Jack_%26_Jones_Logo.svg/2560px-Jack_%26_Jones_Logo.svg.png',
+    'U.S. Polo Assn.': 'https://upload.wikimedia.org/wikipedia/commons/e/e3/U.S._Polo_Assn._Logo.png',
+    'Mango': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Mango_logo.svg/2560px-Mango_logo.svg.png',
+    'Forever 21': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Forever_21_logo.svg/2560px-Forever_21_logo.svg.png',
+    'Biba': 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Biba_Logo.png',
+    'Kalini': 'https://assets.myntassets.com/dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/2022/1/21/f89415cc-281b-426b-8041-3563935272371642749948013-Kalini-Logo.jpg',
+    'Libas': 'https://upload.wikimedia.org/wikipedia/commons/5/52/Libas_Logo.png',
+    'Anouk': 'https://assets.myntassets.com/dpr_1.5,q_60,w_400,c_limit,fl_progressive/assets/images/2022/4/19/2d6999b8-b4b6-45c1-9689-53e7d6928e1d1650369865180-Anouk.jpg'
+};
 
-export const PREMIUM_BRANDS = [
-    {
-        id: 'pb1',
-        name: 'Gucci',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Gucci-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb2',
-        name: 'Prada',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Prada-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb3',
-        name: 'Versace',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Versace-Logo-768x480.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb4',
-        name: 'Dior',
-        logo: 'https://1000logos.net/wp-content/uploads/2021/05/Dior-logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb5',
-        name: 'Chanel',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/07/Chanel-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb6',
-        name: 'Saint Laurent',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/04/Saint-Laurent-Logo-768x480.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb7',
-        name: 'Fendi',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Fendi-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb8',
-        name: 'Givenchy',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Givenchy-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb9',
-        name: 'Hermès',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Hermes-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    },
-    {
-        id: 'pb10',
-        name: 'Valentino',
-        logo: 'https://1000logos.net/wp-content/uploads/2020/09/Valentino-Logo-768x432.png',
-        category: 'Luxury Fashion'
-    }
-];
+// Use the generated brand list but override logos with high-quality ones where available
+export const PREMIUM_BRANDS = rawData.brands.map((b: any) => ({
+    ...b,
+    logo: BRAND_LOGOS[b.name] || b.logo
+}));
+
+
+// Export key types so they can be used in the context
+export interface ProductProperties {
+    style: 'streetwear' | 'casual' | 'formal' | 'vintage' | 'minimalist' | 'bohemian' | 'sporty';
+    price_tier: 'budget' | 'mid' | 'premium' | 'luxury';
+    color_family: 'monochrome' | 'earth' | 'pastel' | 'vibrant' | 'dark' | 'light';
+    category: 'top' | 'bottom' | 'footwear' | 'outerwear' | 'dress' | 'accessories';
+    fit: 'oversized' | 'regular' | 'slim' | 'relaxed';
+    fabric: 'cotton' | 'denim' | 'polyester' | 'wool' | 'leather' | 'silk' | 'synthetic';
+    occasion: 'daily' | 'party' | 'work' | 'vacation' | 'active';
+    season: 'summer' | 'winter' | 'all_year';
+}
+
+export interface Product {
+    id: string;
+    name: string;
+    brand: string;
+    price: number;
+    original_price: number;
+    discount_percentage: number;
+    product_images: { image_url: string }[];
+    category: string;
+    categories: string[];
+    has_free_delivery: boolean;
+    delivery_date: string;
+    description: string;
+    properties: ProductProperties; // Added properties
+}
+
+// Helper to assign random properties for mock data
+const getRandomProperty = <T>(options: T[]): T => {
+    return options[Math.floor(Math.random() * options.length)];
+};
+
+const assignProperties = (product: any): Product => {
+    // Basic logic to guess price tier
+    let price_tier: ProductProperties['price_tier'] = 'mid';
+    if (product.price < 1000) price_tier = 'budget';
+    else if (product.price > 10000) price_tier = 'luxury';
+    else if (product.price > 5000) price_tier = 'premium';
+
+    // Basic logic to guess category if visible
+    let category: ProductProperties['category'] = 'top';
+    const lowerName = product.name.toLowerCase();
+    const lowerCat = product.category.toLowerCase();
+
+    if (lowerCat.includes('foot') || lowerCat.includes('shoes') || lowerName.includes('sneaker') || lowerName.includes('shoe')) category = 'footwear';
+    else if (lowerCat.includes('bottom') || lowerName.includes('pant') || lowerName.includes('short') || lowerName.includes('jeans')) category = 'bottom';
+    else if (lowerName.includes('dress')) category = 'dress';
+    else if (lowerName.includes('jacket') || lowerName.includes('coat') || lowerName.includes('hoodie')) category = 'outerwear';
+    else if (lowerName.includes('bag') || lowerName.includes('watch') || lowerName.includes('belt')) category = 'accessories';
+
+    return {
+        ...product,
+        properties: {
+            style: getRandomProperty(['streetwear', 'casual', 'formal', 'vintage', 'minimalist', 'bohemian', 'sporty']),
+            price_tier,
+            color_family: getRandomProperty(['monochrome', 'earth', 'pastel', 'vibrant', 'dark', 'light']),
+            category,
+            fit: getRandomProperty(['oversized', 'regular', 'slim', 'relaxed']),
+            fabric: getRandomProperty(['cotton', 'denim', 'polyester', 'wool', 'leather', 'synthetic']),
+            occasion: getRandomProperty(['daily', 'party', 'work', 'vacation', 'active']),
+            season: getRandomProperty(['summer', 'winter', 'all_year'])
+        }
+    };
+};
+
+// Export the generated products enriched with properties
+export const MOCK_PRODUCTS: Product[] = rawData.products.map(assignProperties);
 
