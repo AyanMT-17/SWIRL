@@ -1,20 +1,20 @@
 import { Tabs } from 'expo-router';
 import { View, Text, TouchableOpacity, Platform, Dimensions } from 'react-native';
-import { HomeIcon, MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from 'react-native-heroicons/outline';
+import CartIcon from '@/components/icons/CartIcon';
+import HomeIcon from '@/components/icons/HomeIcon';
+import SearchIcon from '@/components/icons/SearchIcon';
+import ProfileIcon from '@/components/icons/ProfileIcon';
 import { StatusBar } from 'expo-status-bar';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-// Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
-// Responsive footer dimensions (based on iPhone 16 specs)
-const FOOTER_HEIGHT = Math.round(90 * heightScale);
-const FOOTER_BORDER_RADIUS = Math.round(24 * scale);
-const FOOTER_PADDING_HORIZONTAL = Math.round(32 * scale);
-const ICON_SIZE = Math.round(24 * scale);
-const BRAND_FONT_SIZE = Math.round(24 * scale);
+// Fixed footer dimensions
+const FOOTER_HEIGHT = 90;
+const FOOTER_BORDER_RADIUS = 24;
+const FOOTER_PADDING_HORIZONTAL = 32;
+// Increased size for custom SVGs as per user request
+const ICON_SIZE = 40;
+const CART_ICON_SIZE = 20;
+const BRAND_FONT_SIZE = 24;
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   return (
@@ -24,7 +24,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
       left: 0,
       right: 0,
       height: FOOTER_HEIGHT,
-      backgroundColor: '#DFE4C5',
+      backgroundColor: '#E1E2C3',
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -44,7 +44,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
       {/* Home */}
       <TouchableOpacity
         onPress={() => navigation.navigate('index')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 * scale }}
+        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
       >
         <HomeIcon size={ICON_SIZE} color={state.index === 0 ? "black" : "#666"} strokeWidth={state.index === 0 ? 2.5 : 2} />
       </TouchableOpacity>
@@ -52,9 +52,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
       {/* Discovery/Search */}
       <TouchableOpacity
         onPress={() => navigation.navigate('discovery')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 * scale }}
+        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
       >
-        <MagnifyingGlassIcon size={ICON_SIZE} color={state.index === 1 ? "black" : "#666"} strokeWidth={state.index === 1 ? 2.5 : 2} />
+        <SearchIcon size={ICON_SIZE} color={state.index === 1 ? "black" : "#666"} />
       </TouchableOpacity>
 
       {/* SWIRL Brand Text */}
@@ -63,29 +63,36 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         style={{
           alignItems: 'center',
           justifyContent: 'center',
-          paddingHorizontal: 16 * scale,
-          paddingVertical: 8 * scale,
+          paddingHorizontal: 16,
+          paddingVertical: 8,
           backgroundColor: state.index === 2 ? 'white' : 'transparent',
           borderRadius: 9999,
         }}
       >
-        <Text style={{ fontSize: BRAND_FONT_SIZE, fontWeight: '900', fontFamily: 'DMSans_900Bold', color: 'black', letterSpacing: 1.5, lineHeight: 28 * scale }}>SWIRL.</Text>
+        <Text style={{
+          fontSize: BRAND_FONT_SIZE,
+          fontWeight: '900',
+          fontFamily: 'DMSans_900Bold',
+          color: state.index === 2 ? 'black' : '#666',
+          letterSpacing: 1.5,
+          lineHeight: 28
+        }}>SWIRL.</Text>
       </TouchableOpacity>
 
       {/* Cart */}
       <TouchableOpacity
         onPress={() => navigation.navigate('cart')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 * scale }}
+        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
       >
-        <ShoppingCartIcon size={ICON_SIZE} color={state.index === 3 ? "black" : "#666"} strokeWidth={state.index === 3 ? 2.5 : 2} />
+        <CartIcon size={CART_ICON_SIZE} color={state.index === 3 ? "black" : "#666"} strokeWidth={state.index === 3 ? 2.5 : 2} />
       </TouchableOpacity>
 
       {/* Profile */}
       <TouchableOpacity
         onPress={() => navigation.navigate('account')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 * scale }}
+        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
       >
-        <UserIcon size={ICON_SIZE} color={state.index === 4 ? "black" : "#666"} strokeWidth={state.index === 4 ? 2.5 : 2} />
+        <ProfileIcon size={ICON_SIZE} color={state.index === 4 ? "black" : "#666"} />
       </TouchableOpacity>
     </View>
   );

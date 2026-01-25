@@ -1,0 +1,16 @@
+import React from 'react';
+import Svg, { Rect, Path } from 'react-native-svg';
+
+interface IconProps {
+    size?: number;
+    color?: string; // Overrides the fill (default black)
+}
+
+export default function LeftArrowIcon({ size = 40, color = '#18181B' }: IconProps) {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+            <Rect width="40" height="40" rx="20" fill="#F7F8DB" />
+            <Path fillRule="evenodd" clipRule="evenodd" d="M22.5303 14.9697C22.8232 15.2626 22.8232 15.7374 22.5303 16.0303L18.5607 20L22.5303 23.9697C22.8232 24.2626 22.8232 24.7374 22.5303 25.0303C22.2374 25.3232 21.7626 25.3232 21.4697 25.0303L16.9697 20.5303C16.6768 20.2374 16.6768 19.7626 16.9697 19.4697L21.4697 14.9697C21.7626 14.6768 22.2374 14.6768 22.5303 14.9697Z" fill={color} />
+        </Svg>
+    );
+}

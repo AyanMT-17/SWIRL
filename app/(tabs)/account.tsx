@@ -16,12 +16,9 @@ import { useAuth } from '@/contexts/AuthContext';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
-const HEADER_BORDER_RADIUS = Math.round(24 * scale);
-const FEED_BORDER_RADIUS = Math.round(24 * scale);
+// Fixed dimensions
+const HEADER_BORDER_RADIUS = 24;
+const FEED_BORDER_RADIUS = 24;
 
 const MENU_ITEMS = [
     { icon: UserIcon, label: 'My account', subLabel: 'view and edit your profile details', route: '/my-account', isModal: false },
@@ -53,7 +50,7 @@ export default function Account() {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#000', paddingBottom: Math.round(94 * heightScale) }}>
+        <View style={{ flex: 1, backgroundColor: '#000', paddingBottom: 94 }}>
             {/* Floating Header with greeting and invite */}
             <View
                 style={{
@@ -61,9 +58,9 @@ export default function Account() {
                     zIndex: 50,
                     overflow: 'hidden',
                     borderRadius: HEADER_BORDER_RADIUS,
-                    paddingTop: Math.max(insets.top, Math.round(44 * heightScale)),
-                    paddingBottom: Math.round(20 * heightScale),
-                    paddingHorizontal: Math.round(20 * scale),
+                    paddingTop: Math.max(insets.top, 44),
+                    paddingBottom: 20,
+                    paddingHorizontal: 20,
                 }}
             >
                 <View>
@@ -83,7 +80,7 @@ export default function Account() {
                 style={{
                     flex: 1,
                     backgroundColor: '#FDFFF2',
-                    marginTop: Math.round(3 * scale),
+                    marginTop: 3,
                     borderRadius: FEED_BORDER_RADIUS,
                     overflow: 'hidden',
                 }}

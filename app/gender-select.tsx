@@ -5,14 +5,9 @@ import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
-// Button dimensions
-const BUTTON_HEIGHT = Math.round(86 * heightScale);
-const BUTTON_BORDER_RADIUS = Math.round(24 * scale);
+// Fixed button dimensions
+const BUTTON_HEIGHT = 86;
+const BUTTON_BORDER_RADIUS = 24;
 
 export default function GenderSelect() {
     const router = useRouter();
@@ -47,7 +42,7 @@ export default function GenderSelect() {
                 </View>
 
                 {/* Title and Subtitle */}
-                <View style={{ marginTop: Math.round(80 * heightScale) }}>
+                <View style={{ marginTop: 80 }}>
                     <Text className="text-black text-2xl font-bold text-center mb-4">
                         Select your Gender?
                     </Text>
@@ -59,7 +54,7 @@ export default function GenderSelect() {
                 {/* Gender Buttons */}
                 <View
                     className="flex-row gap-3"
-                    style={{ marginTop: Math.round(40 * heightScale), paddingHorizontal: Math.round(10 * widthScale) }}
+                    style={{ marginTop: 40, paddingHorizontal: 10 }}
                 >
                     <TouchableOpacity
                         onPress={() => setSelectedGender('men')}
@@ -85,11 +80,11 @@ export default function GenderSelect() {
                 onPress={handleContinue}
                 style={{
                     position: 'absolute',
-                    top: Math.round(732 * heightScale),
+                    bottom: 34,
                     left: 0,
                     backgroundColor: '#E4AD82',
-                    height: Math.round(86 * heightScale),
-                    borderRadius: Math.round(24 * scale),
+                    height: BUTTON_HEIGHT,
+                    borderRadius: BUTTON_BORDER_RADIUS,
                     width: SCREEN_WIDTH,
                     alignItems: 'center',
                     justifyContent: 'center',

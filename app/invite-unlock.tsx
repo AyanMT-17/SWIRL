@@ -5,14 +5,9 @@ import { StatusBar } from 'expo-status-bar';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
-// Button dimensions
-const BUTTON_HEIGHT = Math.round(86 * heightScale);
-const BUTTON_BORDER_RADIUS = Math.round(24 * scale);
+// Fixed button dimensions
+const BUTTON_HEIGHT = 86;
+const BUTTON_BORDER_RADIUS = 24;
 
 export default function InviteUnlock() {
     const router = useRouter();
@@ -33,11 +28,11 @@ export default function InviteUnlock() {
                 <View className="flex-1 px-6 pt-12 pb-10">
 
                     {/* SWIRL Logo */}
-                    <View className="items-center" style={{ marginTop: Math.round(80 * heightScale) }}>
+                    <View className="items-center" style={{ marginTop: 80 }}>
                         <Text
                             className="text-white tracking-widest"
                             style={{
-                                fontSize: Math.round(42 * scale),
+                                fontSize: 42,
                                 fontWeight: '800',
                                 fontFamily: 'DMSans_700Bold',
                                 fontStyle: 'italic',
@@ -48,7 +43,7 @@ export default function InviteUnlock() {
                     </View>
 
                     {/* Description Text */}
-                    <View className="items-center" style={{ marginTop: Math.round(100 * heightScale) }}>
+                    <View className="items-center" style={{ marginTop: 100 }}>
                         <Text className="text-gray-400 text-center text-xs font-medium leading-5 px-4">
                             Be among the first to experience next-gen AI fashion
                         </Text>
@@ -57,11 +52,11 @@ export default function InviteUnlock() {
                         </Text>
                     </View>
 
-                    {/* Form Section - positioned at top 432px */}
+                    {/* Form Section - positioned at top 350px */}
                     <View
                         style={{
                             position: 'absolute',
-                            top: Math.round(350 * heightScale),
+                            top: 350,
                             left: 0,
                             right: 0,
                             paddingHorizontal: 0,
@@ -72,10 +67,10 @@ export default function InviteUnlock() {
                             className="bg-black"
                             style={{
                                 width: SCREEN_WIDTH,
-                                height: Math.round(86 * heightScale),
+                                height: 86,
                                 borderColor: '#E4AD82',
                                 borderWidth: 1,
-                                borderRadius: Math.round(24 * scale),
+                                borderRadius: 24,
                                 justifyContent: 'center',
                                 marginBottom: 8,
                             }}
@@ -96,8 +91,8 @@ export default function InviteUnlock() {
                             style={{
                                 backgroundColor: '#E4AD82',
                                 width: SCREEN_WIDTH,
-                                height: Math.round(86 * heightScale),
-                                borderRadius: Math.round(24 * scale),
+                                height: 86,
+                                borderRadius: 24,
                                 alignItems: 'center',
                                 justifyContent: 'center',
                             }}
@@ -110,7 +105,7 @@ export default function InviteUnlock() {
                         {/* Don't have a code? */}
                         <TouchableOpacity
                             onPress={() => router.replace('/(tabs)')}
-                            style={{ marginTop: Math.round(24 * heightScale) }}
+                            style={{ marginTop: 24 }}
                         >
                             <Text className="text-gray-400 text-center text-sm">
                                 Don't have a code?
@@ -118,7 +113,7 @@ export default function InviteUnlock() {
                         </TouchableOpacity>
 
                         {/* Footer Text */}
-                        <View style={{ marginTop: Math.round(50 * heightScale) }}>
+                        <View style={{ marginTop: 50 }}>
                             <Text className="text-gray-500 text-center text-xs leading-5 px-2">
                                 We drop limited invites every week - follow us{'\n'}on Instagram (
                                 <Text

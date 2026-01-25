@@ -4,23 +4,20 @@ import { useRouter } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { MOCK_PRODUCTS, Product } from '@/constants/mockData';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeftIcon, ArrowPathIcon, AdjustmentsHorizontalIcon, MagnifyingGlassIcon, ArrowTrendingUpIcon, SparklesIcon, StarIcon, ClockIcon, TagIcon } from 'react-native-heroicons/outline';
+import { ChevronLeftIcon, ArrowPathIcon, Bars3BottomLeftIcon, MagnifyingGlassIcon, ArrowTrendingUpIcon, SparklesIcon, StarIcon, ClockIcon, TagIcon } from 'react-native-heroicons/outline';
 import FilterModal, { FilterState } from '@/components/FilterModal';
 import { useRecommendation } from '@/contexts/RecommendationContext';
 import SwipeableProductCard from '@/components/SwipeableProductCard';
+import ReloadIcon from '@/components/icons/ReloadIcon';
+import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
+import SearchButtonIcon from '@/components/icons/SearchButtonIcon';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-// Base design is iPhone 16: 393x852
-const widthScale = width / 393;
-const heightScale = height / 852;
-const scale = Math.min(widthScale, heightScale);
-
-// Responsive header dimensions (based on iPhone 16 specs)
-const HEADER_HEIGHT = Math.round(150 * heightScale);
-const HEADER_BORDER_RADIUS = Math.round(24 * scale);
-const ICON_SIZE = Math.round(24 * scale);
-const BUTTON_SIZE = Math.round(40 * scale);
+// Fixed dimensions for better responsiveness (no more scaling)
+const HEADER_BORDER_RADIUS = 24;
+const ICON_SIZE = 24;
+const BUTTON_SIZE = 40;
 
 const PRIMARY_CATEGORIES = ['Top', 'Bottom', 'Foot'];
 const SECONDARY_CATEGORIES = ['Lite', 'Premium', 'New Arrivals', 'Streetwear', 'Sneaker', 'Vintage', 'Denim', 'Accessories'];
@@ -144,21 +141,19 @@ export default function Home() {
             backgroundColor: '#FDFFF2',
             zIndex: 50,
             overflow: 'hidden',
-            // height: HEADER_HEIGHT, // Removed fixed height to accommodate dynamic safe area
             borderRadius: HEADER_BORDER_RADIUS,
-            paddingTop: Math.max(insets.top, Math.round(44 * heightScale)),
-            paddingBottom: Math.round(10 * heightScale),
-            paddingLeft: Math.round(16 * scale),
-            paddingRight: Math.round(16 * scale),
+            paddingTop: insets.top + 10,
+            paddingBottom: 10,
+            paddingHorizontal: 16,
           }}
         >
-          {/* Top Row - Search Bar with 8px left/right inner padding */}
+          {/* Top Row - Search Bar */}
           <View style={{
             flexDirection: 'row',
             alignItems: 'center',
-            gap: Math.round(8 * scale),
-            paddingHorizontal: Math.round(8 * scale),
-            marginBottom: Math.round(16 * scale),
+            gap: 8,
+            paddingHorizontal: 8,
+            marginBottom: 16,
           }}>
             <TouchableOpacity
               style={{
@@ -166,7 +161,8 @@ export default function Home() {
                 height: BUTTON_SIZE,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: '#E1E2C3',
+                // Remove background color since icon has it
+                // backgroundColor: '#F7F8DB',
                 borderRadius: BUTTON_SIZE / 2,
               }}
               onPress={() => {
@@ -176,16 +172,15 @@ export default function Home() {
                 }
               }}
             >
-              <ChevronLeftIcon size={ICON_SIZE} color="#000" />
+              <LeftArrowIcon size={BUTTON_SIZE} />
             </TouchableOpacity>
 
             <View style={{
-              flex: 1, // Results in 249px width on iPhone 16 (393 - 72 left - 72 right)
-              height: Math.round(40 * scale),
-              minWidth: Math.round(116 * scale),
-              backgroundColor: '#E1E2C3',
+              flex: 1,
+              height: 40,
+              backgroundColor: '#F7F8DB',
               borderRadius: 9999,
-              paddingHorizontal: Math.round(16 * scale),
+              paddingHorizontal: 16,
               justifyContent: 'center',
               flexDirection: 'row',
               alignItems: 'center'
@@ -193,7 +188,7 @@ export default function Home() {
               <TextInput
                 style={{
                   flex: 1,
-                  fontSize: Math.round(13 * scale),
+                  fontSize: 13,
                   fontWeight: '500',
                   fontFamily: 'DMSans_500Medium',
                   color: '#1f2937',
@@ -214,15 +209,16 @@ export default function Home() {
                 height: BUTTON_SIZE,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: '#E1E2C3',
+                // Remove background color since icon has it
+                // backgroundColor: '#F7F8DB',
                 borderRadius: BUTTON_SIZE / 2,
               }}
               onPress={isSearchFocused ? () => { } : handleReset}
             >
               {isSearchFocused ? (
-                <MagnifyingGlassIcon size={Math.round(20 * scale)} color="#000" strokeWidth={2} />
+                <SearchButtonIcon size={BUTTON_SIZE} color="#000" />
               ) : (
-                <ArrowPathIcon size={Math.round(20 * scale)} color="#000" strokeWidth={2} />
+                <ReloadIcon size={BUTTON_SIZE} />
               )}
             </TouchableOpacity>
           </View>
@@ -230,35 +226,35 @@ export default function Home() {
           {/* Category Filters - Dynamic based on search focus */}
           {isSearchFocused ? (
             // Search-focused categories (two rows)
-            <View style={{ paddingHorizontal: Math.round(8 * scale) }}>
+            <View style={{ paddingHorizontal: 8 }}>
               {/* First Row */}
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: Math.round(8 * scale), paddingBottom: Math.round(8 * scale) }}
+                contentContainerStyle={{ gap: 8, paddingBottom: 8 }}
               >
                 {SEARCH_PRIMARY_CATEGORIES.map((category) => (
                   <TouchableOpacity
                     key={category}
                     onPress={() => handleCategoryChange(category)}
                     style={{
-                      paddingHorizontal: Math.round(16 * scale),
-                      paddingVertical: Math.round(10 * scale),
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
                       borderRadius: 9999,
                       borderWidth: 1,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: Math.round(6 * scale),
+                      gap: 6,
                       backgroundColor: selectedCategory === category ? '#000' : '#fff',
                       borderColor: selectedCategory === category ? '#000' : '#d1d5db',
                     }}
                   >
                     {category === 'Trending' && (
-                      <ArrowTrendingUpIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />
+                      <ArrowTrendingUpIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />
                     )}
                     <Text
                       style={{
-                        fontSize: Math.round(14 * scale),
+                        fontSize: 14,
                         fontWeight: '600',
                         fontFamily: 'DMSans_600SemiBold',
                         color: selectedCategory === category ? '#fff' : '#111827',
@@ -274,31 +270,31 @@ export default function Home() {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: Math.round(8 * scale) }}
+                contentContainerStyle={{ gap: 8 }}
               >
                 {SEARCH_SECONDARY_CATEGORIES.map((category) => (
                   <TouchableOpacity
                     key={category}
                     onPress={() => handleCategoryChange(category)}
                     style={{
-                      paddingHorizontal: Math.round(16 * scale),
-                      paddingVertical: Math.round(10 * scale),
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
                       borderRadius: 9999,
                       borderWidth: 1,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: Math.round(6 * scale),
+                      gap: 6,
                       backgroundColor: selectedCategory === category ? '#000' : '#fff',
                       borderColor: selectedCategory === category ? '#000' : '#d1d5db',
                     }}
                   >
-                    {category === 'Lite' && <SparklesIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />}
-                    {category === 'Premium' && <StarIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />}
-                    {category === 'Luxe' && <SparklesIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />}
-                    {category === 'Street wear' && <TagIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />}
+                    {category === 'Lite' && <SparklesIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
+                    {category === 'Premium' && <StarIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
+                    {category === 'Luxe' && <SparklesIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
+                    {category === 'Street wear' && <TagIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
                     <Text
                       style={{
-                        fontSize: Math.round(14 * scale),
+                        fontSize: 14,
                         fontWeight: '600',
                         fontFamily: 'DMSans_600SemiBold',
                         color: selectedCategory === category ? '#fff' : '#111827',
@@ -312,11 +308,11 @@ export default function Home() {
             </View>
           ) : (
             // Default categories (single row)
-            <View style={{ paddingLeft: Math.round(8 * scale) }}>
+            <View style={{ paddingLeft: 8 }}>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: Math.round(8 * scale), paddingRight: Math.round(20 * scale) }}
+                contentContainerStyle={{ gap: 8, paddingRight: 20 }}
               >
                 <TouchableOpacity
                   style={{
@@ -328,11 +324,11 @@ export default function Home() {
                     borderRadius: BUTTON_SIZE / 2,
                     borderWidth: 1,
                     borderColor: '#e5e7eb',
-                    marginRight: Math.round(4 * scale),
+                    marginRight: 4,
                   }}
                   onPress={() => setIsFilterVisible(true)}
                 >
-                  <AdjustmentsHorizontalIcon size={Math.round(18 * scale)} color="#000" />
+                  <Bars3BottomLeftIcon size={20} color="#000" />
                 </TouchableOpacity>
 
                 {/* Primary Categories */}
@@ -341,8 +337,8 @@ export default function Home() {
                     key={category}
                     onPress={() => handleCategoryChange(category)}
                     style={{
-                      paddingHorizontal: Math.round(24 * scale),
-                      paddingVertical: Math.round(10 * scale),
+                      paddingHorizontal: 24,
+                      paddingVertical: 10,
                       borderRadius: 9999,
                       borderWidth: 1,
                       backgroundColor: selectedCategory === category ? '#000' : '#fff',
@@ -351,7 +347,7 @@ export default function Home() {
                   >
                     <Text
                       style={{
-                        fontSize: Math.round(14 * scale),
+                        fontSize: 14,
                         fontWeight: '600',
                         fontFamily: 'DMSans_600SemiBold',
                         color: selectedCategory === category ? '#fff' : '#111827',
@@ -364,10 +360,10 @@ export default function Home() {
 
                 {/* Separator */}
                 <View style={{
-                  height: Math.round(32 * scale),
+                  height: 32,
                   width: 1,
                   backgroundColor: '#d1d5db',
-                  marginHorizontal: Math.round(8 * scale),
+                  marginHorizontal: 8,
                   alignSelf: 'center'
                 }} />
 
@@ -377,22 +373,22 @@ export default function Home() {
                     key={category}
                     onPress={() => handleCategoryChange(category)}
                     style={{
-                      paddingHorizontal: Math.round(20 * scale),
-                      paddingVertical: Math.round(10 * scale),
+                      paddingHorizontal: 20,
+                      paddingVertical: 10,
                       borderRadius: 9999,
                       borderWidth: 1,
                       flexDirection: 'row',
                       alignItems: 'center',
-                      gap: Math.round(6 * scale),
+                      gap: 6,
                       backgroundColor: selectedCategory === category ? '#000' : '#fff',
                       borderColor: selectedCategory === category ? '#000' : '#d1d5db',
                     }}
                   >
-                    {category === 'Lite' && <SparklesIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />}
-                    {category === 'Premium' && <StarIcon size={Math.round(14 * scale)} color={selectedCategory === category ? '#fff' : '#000'} />}
+                    {category === 'Lite' && <SparklesIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
+                    {category === 'Premium' && <StarIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
                     <Text
                       style={{
-                        fontSize: Math.round(14 * scale),
+                        fontSize: 14,
                         fontWeight: '600',
                         fontFamily: 'DMSans_600SemiBold',
                         color: selectedCategory === category ? '#fff' : '#111827',
@@ -436,7 +432,7 @@ export default function Home() {
             </View>
           ) : (
             // Card Stack - Full width container
-            <View style={{ width: width, height: height - 170, alignItems: 'center' }}>
+            <View style={{ flex: 1, width: width, alignItems: 'center' }}>
               {/* Background card (next product) */}
               {nextProduct && (
                 <SwipeableProductCard

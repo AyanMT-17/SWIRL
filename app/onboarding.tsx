@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  Easing,
-  AnimatedStyle,
   FadeIn,
-  FadeInDown
 } from 'react-native-reanimated';
 import { ArrowRightIcon } from 'react-native-heroicons/outline';
 
@@ -23,31 +16,9 @@ const SLIDES = [
   }
 ];
 
-const MARQUEE_TEXT = "  UNIQUELY YOU";
-
 export default function Onboarding() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const router = useRouter();
-
-  // Marquee Animation
-  const translateX = useSharedValue(0);
-
-  useEffect(() => {
-    translateX.value = withRepeat(
-      withTiming(-width * 2, {
-        duration: 8000,
-        easing: Easing.linear,
-      }),
-      -1, // Infinite repeat
-      false // Do not reverse
-    );
-  }, []);
-
-  const marqueeStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value }],
-    };
-  });
 
   const handleNext = () => {
     if (currentSlide < SLIDES.length - 1) {
@@ -56,6 +27,7 @@ export default function Onboarding() {
       router.push('/location-select');
     }
   };
+
 
   return (
     <View className="flex-1 bg-black">
@@ -95,19 +67,11 @@ export default function Onboarding() {
           </Text>
         </View>
 
-        {/* Marquee Text Area - Cream Pill */}
-        <View className="mb-1 mx-2 overflow-hidden bg-[#FDFDE8] h-24 rounded-[24px] relative w-[96%]">
-          <Animated.View className="flex-row absolute items-center h-full" style={marqueeStyle}>
-            <Text className="text-black text-4xl font-black tracking-tight whitespace-nowrap uppercase line-through-none include-font-padding-false" style={{ transform: [{ translateY: 2 }] }}>
-              {MARQUEE_TEXT}
-            </Text>
-            <Text className="text-black text-4xl font-black tracking-tight whitespace-nowrap uppercase line-through-none include-font-padding-false" style={{ transform: [{ translateY: 2 }] }}>
-              {MARQUEE_TEXT}
-            </Text>
-            <Text className="text-black text-4xl font-black tracking-tight whitespace-nowrap uppercase line-through-none include-font-padding-false" style={{ transform: [{ translateY: 2 }] }}>
-              {MARQUEE_TEXT}
-            </Text>
-          </Animated.View>
+        {/* Static Text Area - Cream Pill */}
+        <View className="mb-1 mx-2 bg-[#FDFDE8] h-24 rounded-[24px] items-center justify-center w-[96%]">
+          <Text className="text-black text-5xl font-black tracking-tight uppercase">
+            UNIQUELY   YOU
+          </Text>
         </View>
 
         {/* Action Button */}

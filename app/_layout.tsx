@@ -42,7 +42,6 @@ export default function RootLayout() {
           <RecommendationProvider>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="onboarding" />
-
               <Stack.Screen name="location-select" />
               <Stack.Screen name="phone-login" />
               <Stack.Screen name="otp-verify" />

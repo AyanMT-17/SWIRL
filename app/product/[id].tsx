@@ -1,151 +1,96 @@
-import { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
-} from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-// import { supabase } from '@/lib/supabase'; // Removed
-import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
-import { MOCK_PRODUCTS } from '@/constants/mockData';
-import { ArrowLeftIcon, ShoppingCartIcon } from 'react-native-heroicons/outline';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, Image, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { ShoppingCartIcon } from 'react-native-heroicons/outline';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRecommendation } from '@/contexts/RecommendationContext';
+import { useState, useCallback } from 'react';
+import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
 
 const { width } = Dimensions.get('window');
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  brand: string;
-  product_images: { image_url: string; sort_order: number }[];
-  product_sizes: { size: string; stock_quantity: number }[];
-}
-
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
 
-export default function ProductDetail() {
+export default function ProductDetails() {
   const { id } = useLocalSearchParams();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [selectedSize, setSelectedSize] = useState('');
+  const router = useRouter();
+  const { getProductById } = useRecommendation();
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
-  const { addToCart, isLoading: cartLoading } = useCart();
-  const router = useRouter();
 
-  useEffect(() => {
-    loadProduct();
-  }, [id]);
+  const product = getProductById(Number(id));
 
-  const loadProduct = async () => {
-    const foundProduct = MOCK_PRODUCTS.find(p => p.id === id);
-    if (foundProduct) {
-      // Enriched mock product with sizes and images sort order if needed
-      const enrichedProduct: Product = {
-        ...foundProduct,
-        description: foundProduct.description || '',
-        product_images: foundProduct.product_images.map((img, idx) => ({ ...img, sort_order: idx })),
-        product_sizes: sizes.map(s => ({ size: s, stock_quantity: 10 }))
-      };
-      setProduct(enrichedProduct);
-      if (enrichedProduct.product_sizes?.length > 0) {
-        setSelectedSize(enrichedProduct.product_sizes[0].size);
-      }
-    }
-  };
-
-  const handleAddToBag = async () => {
+  const handleAddToCart = useCallback(() => {
     if (!selectedSize) {
-      Alert.alert('Error', 'Please select a size');
+      Alert.alert('Select Size', 'Please select a size first');
       return;
     }
-
-    if (!product) return;
-
-    // Convert local Product to CartContext Product (they are basically the same structurally but interface names differ in code)
-    // Actually our CartContext Product interface is compatible with MOCK_PRODUCTS structure.
-
     setLoading(true);
-
-    try {
-      await addToCart(product, selectedSize);
-      Alert.alert('Success', 'Added to bag!', [
-        { text: 'Continue Shopping', style: 'cancel' },
-        { text: 'Go to Bag', onPress: () => router.push('/(tabs)/bag') }
-      ]);
-    } catch (error: any) {
-      Alert.alert('Error', error.message);
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
       setLoading(false);
-    }
-  };
+      Alert.alert('Added to Cart', `${product?.name} (Size: ${selectedSize}) added to your cart`);
+    }, 500);
+  }, [product, selectedSize]);
 
+  // If product not found (shouldn't happen in normal flow)
   if (!product) {
     return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text>Product not found</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mt-4 p-2 bg-black rounded-lg"
+        >
+          <Text className="text-white">Go Back</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
-  const images = product.product_images.sort((a, b) => a.sort_order - b.sort_order);
+  // Use product images if available, otherwise fallback is handled in lower layers or UI
+  const images = product.product_images && product.product_images.length > 0
+    ? product.product_images
+    : [{ image_url: product.product_images[0]?.image_url || '', sort_order: 0 }];
 
   return (
-    <View className="flex-1 bg-black">
-      <View className="absolute top-12 left-4 z-10">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="bg-black/50 p-3 rounded-full"
-        >
-          <ArrowLeftIcon size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+    <View className="flex-1 bg-white">
+      <Stack.Screen options={{ headerShown: false }} />
 
-      <View className="absolute top-12 right-4 z-10">
-        <TouchableOpacity className="bg-black/50 p-3 rounded-full">
-          <ShoppingCartIcon size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView>
+      <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+        {/* Image Header */}
         <View className="relative">
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={(event) => {
-              const index = Math.round(
-                event.nativeEvent.contentOffset.x / width
-              );
-              setSelectedImageIndex(index);
-            }}
-          >
-            {images.map((img, index) => (
-              <Image
-                key={index}
-                source={{
-                  uri:
-                    img.image_url ||
-                    'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=800',
-                }}
-                style={{ width, height: width * 1.2 }}
-                resizeMode="cover"
-              />
-            ))}
-          </ScrollView>
+          <Image
+            source={{ uri: product.product_images[0]?.image_url }}
+            style={{ width: '100%', height: 550 }}
+            resizeMode="cover"
+          />
+
+          {/* Header Actions */}
+          <SafeAreaView className="absolute top-0 left-0 right-0 flex-row justify-between px-4">
+            <TouchableOpacity
+              onPress={() => router.back()}
+            >
+              <LeftArrowIcon size={40} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => router.push('/(tabs)/cart')}
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                padding: 8,
+                borderRadius: 9999,
+              }}
+            >
+              <ShoppingCartIcon size={24} color="#000" />
+            </TouchableOpacity>
+          </SafeAreaView>
 
           <View className="flex-row absolute bottom-4 right-4 bg-black/50 px-3 py-2 rounded-full">
             {images.map((_, index) => (
               <View
                 key={index}
-                className={`w-2 h-2 rounded-full mx-1 ${index === selectedImageIndex ? 'bg-white' : 'bg-gray-500'
-                  }`}
+                className={`w-2 h-2 rounded-full mx-1 ${index === selectedImageIndex ? 'bg-white' : 'bg-gray-500'}`}
               />
             ))}
           </View>
@@ -210,7 +155,7 @@ export default function ProductDetail() {
           </View>
 
           <TouchableOpacity
-            onPress={handleAddToBag}
+            onPress={handleAddToCart}
             disabled={loading}
             className="bg-[#eecfb4] py-4 rounded-full"
           >

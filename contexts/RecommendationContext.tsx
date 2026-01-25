@@ -31,11 +31,13 @@ interface RecommendationContextType {
     collections: Collection[];
     handleSwipeRight: (product: Product) => Promise<void>;
     handleSwipeLeft: (product: Product) => Promise<void>;
+    removeFromSwirl: (productId: string) => Promise<void>;
     createCollection: (name: string, initialProduct: Product) => Promise<void>;
     addToCollection: (collectionId: string, productId: string) => Promise<void>;
     resetData: () => Promise<void>;
     isLoading: boolean;
     getRecommendedProducts: () => Product[]; // Returns sorted products
+    getProductById: (id: number) => Product | undefined;
 }
 
 const RecommendationContext = createContext<RecommendationContextType | undefined>(undefined);
@@ -127,6 +129,15 @@ export function RecommendationProvider({ children }: { children: React.ReactNode
         updateWeightage(product.properties, -1);
     };
 
+    // REMOVE FROM SWIRL (Unlike)
+    const removeFromSwirl = async (productId: string) => {
+        if (likedProductIds.includes(productId)) {
+            const newLiked = likedProductIds.filter(id => id !== productId);
+            setLikedProductIds(newLiked);
+            await AsyncStorage.setItem(STORAGE_KEYS.LIKED_PRODUCTS, JSON.stringify(newLiked));
+        }
+    };
+
     // COLLECTION MANAGEMENT
     const createCollection = async (name: string, initialProduct: Product) => {
         const newCollection: Collection = {
@@ -188,6 +199,12 @@ export function RecommendationProvider({ children }: { children: React.ReactNode
         return scoredCandidates.sort((a, b) => b.score - a.score).map(item => item.product);
     };
 
+    const getProductById = (id: number): Product | undefined => {
+        // Need to check both string and number IDs since we're using MOCK_PRODUCTS which might have string IDs
+        // based on the interface but the caller is passing a number
+        return MOCK_PRODUCTS.find(p => Number(p.id) === id);
+    };
+
     return (
         <RecommendationContext.Provider value={{
             userWeightages,
@@ -196,11 +213,13 @@ export function RecommendationProvider({ children }: { children: React.ReactNode
             collections,
             handleSwipeRight,
             handleSwipeLeft,
+            removeFromSwirl,
             createCollection,
             addToCollection,
             resetData,
             isLoading,
-            getRecommendedProducts
+            getRecommendedProducts,
+            getProductById
         }}>
             {children}
         </RecommendationContext.Provider>

@@ -5,14 +5,9 @@ import { ChevronLeftIcon, ArrowRightIcon } from 'react-native-heroicons/outline'
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
-// Button dimensions
-const BUTTON_HEIGHT = Math.round(86 * heightScale);
-const BUTTON_BORDER_RADIUS = Math.round(24 * scale);
+// Fixed button dimensions
+const BUTTON_HEIGHT = 86;
+const BUTTON_BORDER_RADIUS = 24;
 
 export default function CreateUsername() {
     const router = useRouter();

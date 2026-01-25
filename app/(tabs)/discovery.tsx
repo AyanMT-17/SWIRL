@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { CameraIcon, ChevronLeftIcon, MicrophoneIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { CameraIcon, MicrophoneIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import { useState, useMemo } from 'react';
 import {
   Image,
@@ -14,16 +14,13 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import { SafeExpoSpeechRecognitionModule, useSafeSpeechRecognitionEvent } from "@/utils/SafeSpeechRecognition";
+import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
-const CARD_WIDTH = Math.round(100 * widthScale);
-const FEED_BORDER_RADIUS = Math.round(32 * scale);
+const CARD_WIDTH = 110;
+const FEED_BORDER_RADIUS = 24;
 
 interface LocationCard {
   id: string;
@@ -121,8 +118,22 @@ const myBrandsData: BrandCard[] = [
 
 export default function Discovery() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  useSafeSpeechRecognitionEvent("start", () => setIsListening(true));
+  useSafeSpeechRecognitionEvent("end", () => setIsListening(false));
+  useSafeSpeechRecognitionEvent("result", (event) => {
+    if (event.results && event.results.length > 0) {
+      setSearchQuery(event.results[0]?.transcript || "");
+    }
+  });
+  useSafeSpeechRecognitionEvent("error", (error) => {
+    console.log("Speech recognition error:", error);
+    setIsListening(false);
+  });
+
 
   const handleCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -142,8 +153,26 @@ export default function Discovery() {
     }
   };
 
-  const handleMic = () => {
-    Alert.alert('Voice Search', 'Voice search functionality coming soon!');
+  const handleMic = async () => {
+    if (isListening) {
+      SafeExpoSpeechRecognitionModule.stop();
+      return;
+    }
+
+    const { status } = await SafeExpoSpeechRecognitionModule.requestPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Voice Search Unavailable",
+        "Microphone access is required. If you are on Expo Go, this feature requires a Development Build."
+      );
+      return;
+    }
+
+    SafeExpoSpeechRecognitionModule.start({
+      lang: "en-US",
+      interimResults: true,
+      maxAlternatives: 1,
+    });
   };
 
   const allFilteredItems = useMemo(() => {
@@ -168,39 +197,48 @@ export default function Discovery() {
         style={{
           paddingTop: insets.top,
           width: SCREEN_WIDTH,
-          height: Math.round(100 * heightScale) + insets.top,
+          height: 100 + insets.top,
           backgroundColor: '#FDFFF2',
-          borderBottomLeftRadius: Math.round(24 * scale),
-          borderBottomRightRadius: Math.round(24 * scale),
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
           justifyContent: 'center',
         }}
       >
-        <View
-          className="flex-row items-center mx-4 my-3 px-3"
-          style={{
-            backgroundColor: '#F7F8DB',
-            borderRadius: Math.round(24 * scale),
-            height: Math.round(44 * heightScale),
-          }}
-        >
-          <TouchableOpacity className="mr-2" onPress={() => router.back()}>
-            <ChevronLeftIcon size={20} color="#000" strokeWidth={2} />
+        <View className="flex-row items-center px-4 w-full">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={{
+              marginRight: 12
+            }}
+          >
+            <LeftArrowIcon size={44} color="#000" />
           </TouchableOpacity>
-          <MagnifyingGlassIcon size={16} color="#888" />
-          <TextInput
-            className="flex-1 ml-2 text-sm text-black"
-            placeholder="Looking for something today?"
-            placeholderTextColor="#888"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-          />
-          <TouchableOpacity className="ml-2" onPress={handleCamera}>
-            <CameraIcon size={18} color="#888" />
-          </TouchableOpacity>
-          <TouchableOpacity className="ml-2" onPress={handleMic}>
-            <MicrophoneIcon size={18} color="#888" />
-          </TouchableOpacity>
+
+          {/* Search Bar */}
+          <View
+            className="flex-1 flex-row items-center px-3"
+            style={{
+              backgroundColor: '#F7F8DB',
+              borderRadius: 24,
+              height: 44,
+            }}
+          >
+            <MagnifyingGlassIcon size={16} color="#000" />
+            <TextInput
+              className="flex-1 ml-2 text-sm text-black"
+              placeholder={isListening ? "Listening..." : "Looking for something today?"}
+              placeholderTextColor={isListening ? "#ff0000" : "#000"}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+            />
+            <TouchableOpacity className="ml-2" onPress={handleCamera}>
+              <CameraIcon size={20} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity className="ml-2" onPress={handleMic}>
+              <MicrophoneIcon size={20} color={isListening ? "red" : "#000"} />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -215,7 +253,7 @@ export default function Discovery() {
           borderBottomLeftRadius: FEED_BORDER_RADIUS,
           borderBottomRightRadius: FEED_BORDER_RADIUS,
           marginTop: 4,
-          marginBottom: Math.round(94 * heightScale),
+          marginBottom: 94,
           overflow: 'hidden',
         }}
       >

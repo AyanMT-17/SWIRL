@@ -17,14 +17,9 @@ import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-// Base design is iPhone 16: 393x852
-const widthScale = SCREEN_WIDTH / 393;
-const heightScale = SCREEN_HEIGHT / 852;
-const scale = Math.min(widthScale, heightScale);
-
 const SWIPE_THRESHOLD = 80;
-const HEADER_BORDER_RADIUS = Math.round(24 * scale);
-const FEED_BORDER_RADIUS = Math.round(24 * scale);
+const HEADER_BORDER_RADIUS = 24;
+const FEED_BORDER_RADIUS = 24;
 
 interface SwipeableCartItemProps {
   item: CartItem;
@@ -32,9 +27,18 @@ interface SwipeableCartItemProps {
   onBuyNow: () => void;
 }
 
+// Fixed action button dimensions
+const ACTION_BUTTON_WIDTH = 112;
+const ACTION_BUTTON_HEIGHT = 116;
+const ACTION_BUTTON_RADIUS = 24;
+const ACTION_BUTTON_GAP = 16;
+
 function SwipeableCartItem({ item, onRemove, onBuyNow }: SwipeableCartItemProps) {
   const translateX = useRef(new Animated.Value(0)).current;
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+
+  // Calculate the swipe distance needed to reveal the action button with gap
+  const SWIPE_DISTANCE = ACTION_BUTTON_WIDTH + ACTION_BUTTON_GAP;
 
   const panResponder = useRef(
     PanResponder.create({
@@ -43,10 +47,13 @@ function SwipeableCartItem({ item, onRemove, onBuyNow }: SwipeableCartItemProps)
         return Math.abs(gestureState.dx) > 10;
       },
       onPanResponderMove: (_, gestureState) => {
-        translateX.setValue(gestureState.dx);
-        if (gestureState.dx < -20) {
+        // Clamp the drag distance to the action button width + gap
+        const dx = Math.max(-SWIPE_DISTANCE, Math.min(SWIPE_DISTANCE, gestureState.dx));
+        translateX.setValue(dx);
+
+        if (dx < -20) {
           setSwipeDirection('left');
-        } else if (gestureState.dx > 20) {
+        } else if (dx > 20) {
           setSwipeDirection('right');
         } else {
           setSwipeDirection(null);
@@ -56,20 +63,25 @@ function SwipeableCartItem({ item, onRemove, onBuyNow }: SwipeableCartItemProps)
         if (gestureState.dx < -SWIPE_THRESHOLD) {
           // Swiped left - show Buy Now
           Animated.spring(translateX, {
-            toValue: -100,
+            toValue: -SWIPE_DISTANCE,
             useNativeDriver: true,
+            bounciness: 0,
           }).start();
+          setSwipeDirection('left');
         } else if (gestureState.dx > SWIPE_THRESHOLD) {
           // Swiped right - show Remove
           Animated.spring(translateX, {
-            toValue: 100,
+            toValue: SWIPE_DISTANCE,
             useNativeDriver: true,
+            bounciness: 0,
           }).start();
+          setSwipeDirection('right');
         } else {
           // Reset position
           Animated.spring(translateX, {
             toValue: 0,
             useNativeDriver: true,
+            bounciness: 0,
           }).start();
           setSwipeDirection(null);
         }
@@ -81,6 +93,7 @@ function SwipeableCartItem({ item, onRemove, onBuyNow }: SwipeableCartItemProps)
     Animated.spring(translateX, {
       toValue: 0,
       useNativeDriver: true,
+      bounciness: 0,
     }).start();
     setSwipeDirection(null);
   };
@@ -98,35 +111,84 @@ function SwipeableCartItem({ item, onRemove, onBuyNow }: SwipeableCartItemProps)
   const originalPrice = Math.round(item.product.price * 1.25);
   const discountPercent = Math.round((1 - item.product.price / originalPrice) * 100);
 
+  // Calculate opacity for action buttons based on swipe direction
+  const buyNowOpacity = translateX.interpolate({
+    inputRange: [-SWIPE_DISTANCE, 0],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
+
+  const removeOpacity = translateX.interpolate({
+    inputRange: [0, SWIPE_DISTANCE],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
   return (
-    <View className="relative mb-3 overflow-hidden rounded-2xl">
-      {/* Background actions */}
-      <View className="absolute inset-0 flex-row">
-        {/* Remove button - Left side (shown when swiped right) */}
+    <View className="relative mb-3" style={{ minHeight: ACTION_BUTTON_HEIGHT }}>
+      {/* Remove button - Left side (shown when swiped right) - Separate component with gap */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: ACTION_BUTTON_WIDTH,
+          height: ACTION_BUTTON_HEIGHT,
+          opacity: removeOpacity,
+        }}
+      >
         <TouchableOpacity
           onPress={handleRemove}
-          className="flex-1 bg-red-500 items-start justify-center pl-6"
+          activeOpacity={0.8}
+          style={{
+            flex: 1,
+            backgroundColor: '#EF4444',
+            borderRadius: ACTION_BUTTON_RADIUS,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <Text className="text-white font-bold text-base">Remove</Text>
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Remove</Text>
         </TouchableOpacity>
+      </Animated.View>
 
-        {/* Buy Now button - Right side (shown when swiped left) */}
+      {/* Buy Now button - Right side (shown when swiped left) - Separate component with gap */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          width: ACTION_BUTTON_WIDTH,
+          height: ACTION_BUTTON_HEIGHT,
+          opacity: buyNowOpacity,
+        }}
+      >
         <TouchableOpacity
           onPress={handleBuyNow}
-          className="flex-1 bg-[#E8B298] items-end justify-center pr-6"
+          activeOpacity={0.8}
+          style={{
+            flex: 1,
+            backgroundColor: '#E8B298',
+            borderRadius: ACTION_BUTTON_RADIUS,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <Text className="text-gray-900 font-bold text-base">Buy Now</Text>
+          <Text style={{ color: '#1A1A1A', fontWeight: 'bold', fontSize: 16 }}>Buy Now</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* Main card content */}
       <Animated.View
         {...panResponder.panHandlers}
         style={{
           transform: [{ translateX }],
-          backgroundColor: '#FDFFF2',
+          backgroundColor: '#F7F8DB',
+          borderRadius: ACTION_BUTTON_RADIUS,
+          padding: 12,
+          flexDirection: 'row',
+          minHeight: ACTION_BUTTON_HEIGHT,
         }}
-        className="flex-row p-3 rounded-2xl"
       >
         {/* Product Image */}
         <Image
@@ -135,25 +197,36 @@ function SwipeableCartItem({ item, onRemove, onBuyNow }: SwipeableCartItemProps)
               item.product.product_images[0]?.image_url ||
               'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400',
           }}
-          className="w-16 h-20 rounded-xl"
+          style={{
+            width: 64,
+            height: 80,
+            borderRadius: 12,
+          }}
           resizeMode="cover"
         />
 
         {/* Product Info */}
-        <View className="flex-1 ml-3 justify-center">
-          <Text className="text-gray-500 text-xs mb-0.5">{item.product.brand}</Text>
-          <Text className="text-gray-900 font-semibold text-sm mb-1" numberOfLines={1}>
+        <View style={{ flex: 1, marginLeft: 12, justifyContent: 'center' }}>
+          <Text style={{ color: '#6B7280', fontSize: 12, marginBottom: 2 }}>
+            {item.product.brand}
+          </Text>
+          <Text
+            style={{ color: '#1A1A1A', fontWeight: '600', fontSize: 14, marginBottom: 4 }}
+            numberOfLines={1}
+          >
             {item.product.name}
           </Text>
-          <View className="flex-row items-center gap-2">
-            <Text className="text-gray-900 font-bold text-base">
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Text style={{ color: '#1A1A1A', fontWeight: 'bold', fontSize: 16 }}>
               ₹{item.product.price.toLocaleString('en-IN')}
             </Text>
-            <Text className="text-gray-400 text-xs line-through">
+            <Text style={{ color: '#9CA3AF', fontSize: 12, textDecorationLine: 'line-through' }}>
               ₹{originalPrice.toLocaleString('en-IN')}
             </Text>
-            <View className="bg-red-100 px-1.5 py-0.5 rounded">
-              <Text className="text-red-600 text-[10px] font-semibold">-{discountPercent}%</Text>
+            <View style={{ backgroundColor: '#FEE2E2', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+              <Text style={{ color: '#DC2626', fontSize: 10, fontWeight: '600' }}>
+                -{discountPercent}%
+              </Text>
             </View>
           </View>
         </View>
@@ -179,17 +252,18 @@ export default function Cart() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#000', paddingBottom: Math.round(94 * heightScale) }}>
+    <View style={{ flex: 1, backgroundColor: '#000', paddingBottom: 94 }}>
       {/* Floating Header - Separate component */}
       <View
         style={{
+          /* Floating Header - Separate component */
           backgroundColor: '#FDFFF2',
           zIndex: 50,
           overflow: 'hidden',
           borderRadius: HEADER_BORDER_RADIUS,
-          paddingTop: Math.max(insets.top, Math.round(44 * heightScale)),
-          paddingBottom: Math.round(16 * heightScale),
-          paddingHorizontal: Math.round(16 * scale),
+          paddingTop: Math.max(insets.top, 44),
+          paddingBottom: 16,
+          paddingHorizontal: 16,
         }}
       >
         <View className="flex-row items-center">
@@ -208,7 +282,7 @@ export default function Cart() {
         style={{
           flex: 1,
           backgroundColor: '#FDFFF2',
-          marginTop: Math.round(3 * scale),
+          marginTop: 3,
           borderRadius: FEED_BORDER_RADIUS,
           overflow: 'hidden',
         }}
@@ -232,6 +306,8 @@ export default function Cart() {
             className="flex-1"
             contentContainerStyle={{ padding: 16 }}
             showsVerticalScrollIndicator={false}
+            bounces={false}
+            overScrollMode="never"
           >
             {cartItems.map((item) => (
               <SwipeableCartItem
