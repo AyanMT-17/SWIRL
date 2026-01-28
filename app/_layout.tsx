@@ -2,6 +2,7 @@ import '../global.css';
 import { useEffect, useCallback } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
@@ -36,26 +37,28 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <CartProvider>
-        <LikesProvider>
-          <RecommendationProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="onboarding" />
-              <Stack.Screen name="location-select" />
-              <Stack.Screen name="phone-login" />
-              <Stack.Screen name="otp-verify" />
-              <Stack.Screen name="gender-select" />
-              <Stack.Screen name="feed-select" />
-              <Stack.Screen name="invite-unlock" />
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="+not-found" />
-              <Stack.Screen name="auth" />
-            </Stack>
-            <StatusBar style="dark" />
-          </RecommendationProvider>
-        </LikesProvider>
-      </CartProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <CartProvider>
+          <LikesProvider>
+            <RecommendationProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="onboarding" />
+                <Stack.Screen name="location-select" />
+                <Stack.Screen name="phone-login" />
+                <Stack.Screen name="otp-verify" />
+                <Stack.Screen name="gender-select" />
+                <Stack.Screen name="feed-select" />
+                <Stack.Screen name="invite-unlock" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="+not-found" />
+                <Stack.Screen name="auth" />
+              </Stack>
+              <StatusBar style="dark" />
+            </RecommendationProvider>
+          </LikesProvider>
+        </CartProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

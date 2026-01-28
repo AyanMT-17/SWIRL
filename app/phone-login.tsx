@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Modal, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ArrowRightIcon, ChevronDownIcon } from 'react-native-heroicons/outline';
+import { ArrowRightIcon, ChevronDownIcon, XMarkIcon } from 'react-native-heroicons/outline';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -17,13 +17,26 @@ const LOGIN_CONTAINER_TOP = Math.round(283.5 * heightScale);
 const LOGIN_CONTAINER_LEFT = Math.round(20 * widthScale);
 const LOGIN_GAP = Math.round(30 * scale);
 
+const COUNTRIES = [
+    { code: 'IN', name: 'India', flag: '🇮🇳', dialCode: '+91' },
+    { code: 'US', name: 'United States', flag: '🇺🇸', dialCode: '+1' },
+    { code: 'UAE', name: 'United Arab Emirates', flag: '🇦🇪', dialCode: '+971' },
+];
+
 export default function PhoneLogin() {
     const router = useRouter();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [inviteCode, setInviteCode] = useState('');
+    const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
+    const [showCountryPicker, setShowCountryPicker] = useState(false);
 
     const handleNext = () => {
-        router.push(`/otp-verify?phone=${encodeURIComponent(phoneNumber)}`);
+        router.push(`/otp-verify?phone=${encodeURIComponent(selectedCountry.dialCode + phoneNumber)}`);
+    };
+
+    const handleSelectCountry = (country: typeof COUNTRIES[0]) => {
+        setSelectedCountry(country);
+        setShowCountryPicker(false);
     };
 
     return (
@@ -44,9 +57,12 @@ export default function PhoneLogin() {
 
                     {/* Country Code Selector */}
                     <View className="items-center mb-6">
-                        <TouchableOpacity className="flex-row items-center px-3 py-2">
-                            <Text className="text-lg mr-1">🇮🇳</Text>
-                            <Text className="text-black text-base font-medium">+91</Text>
+                        <TouchableOpacity
+                            className="flex-row items-center px-3 py-2"
+                            onPress={() => setShowCountryPicker(true)}
+                        >
+                            <Text className="text-lg mr-1">{selectedCountry.flag}</Text>
+                            <Text className="text-black text-base font-medium">{selectedCountry.dialCode}</Text>
                             <ChevronDownIcon size={16} color="#000" />
                         </TouchableOpacity>
                     </View>
@@ -82,7 +98,7 @@ export default function PhoneLogin() {
                     >
                         {/* Phone Input */}
                         <View className="bg-[#F7F8DB] rounded-full flex-row items-center px-4 py-3">
-                            <Text className="text-gray-500 text-base mr-2">91+</Text>
+                            <Text className="text-gray-500 text-base mr-2">{selectedCountry.dialCode}</Text>
                             <TextInput
                                 className="flex-1 text-gray-400 text-base"
                                 placeholder="Enter Phone Number"
@@ -130,6 +146,48 @@ export default function PhoneLogin() {
                     </View>
                 </View>
             </ScrollView>
+
+            {/* Country Picker Modal */}
+            <Modal
+                visible={showCountryPicker}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setShowCountryPicker(false)}
+            >
+                <View className="flex-1 bg-black/50 justify-end">
+                    <View className="bg-white rounded-t-3xl" style={{ maxHeight: SCREEN_HEIGHT * 0.7 }}>
+                        {/* Modal Header */}
+                        <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-100">
+                            <Text className="text-lg font-bold text-black">Select Country Code</Text>
+                            <TouchableOpacity onPress={() => setShowCountryPicker(false)}>
+                                <XMarkIcon size={24} color="#000" />
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Country List */}
+                        <FlatList
+                            data={COUNTRIES}
+                            keyExtractor={(item) => item.code}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    onPress={() => handleSelectCountry(item)}
+                                    className={`flex-row items-center px-6 py-4 border-b border-gray-100 ${selectedCountry.code === item.code ? 'bg-gray-50' : ''
+                                        }`}
+                                >
+                                    <Text className="text-2xl mr-4">{item.flag}</Text>
+                                    <Text className="flex-1 text-base text-black">{item.name} ({item.dialCode})</Text>
+                                    {selectedCountry.code === item.code && (
+                                        <View className="w-5 h-5 rounded-full bg-[#ccfd51] items-center justify-center">
+                                            <Text className="text-black text-xs">✓</Text>
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            )}
+                            showsVerticalScrollIndicator={false}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }

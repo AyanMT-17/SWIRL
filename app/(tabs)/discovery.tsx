@@ -1,12 +1,10 @@
 import { useRouter } from 'expo-router';
-import { CameraIcon, MicrophoneIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
 import { useState, useMemo } from 'react';
 import {
   Image,
   ScrollView,
   StatusBar,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   Dimensions,
@@ -15,106 +13,19 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeExpoSpeechRecognitionModule, useSafeSpeechRecognitionEvent } from "@/utils/SafeSpeechRecognition";
-import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
+import DiscoveryHeader from '@/components/discovery/DiscoveryHeader';
+import DiscoverySection from '@/components/discovery/DiscoverySection';
+import {
+  nearYouData,
+  trendingFashionData,
+  lifestyleData,
+  myBrandsData
+} from '@/components/discovery/data';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const CARD_WIDTH = 110;
 const FEED_BORDER_RADIUS = 24;
-
-interface LocationCard {
-  id: string;
-  name: string;
-  image: string;
-}
-
-interface FashionCard {
-  id: string;
-  name: string;
-  image: string;
-}
-
-interface LifestyleCard {
-  id: string;
-  name: string;
-  image: string;
-}
-
-interface BrandCard {
-  id: string;
-  name: string;
-  logo: string;
-}
-
-const nearYouData: LocationCard[] = [
-  {
-    id: '1',
-    name: 'Hyderabad',
-    image: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '2',
-    name: 'Kashmir',
-    image: 'https://images.pexels.com/photos/1342609/pexels-photo-1342609.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '3',
-    name: 'Maharashtra',
-    image: 'https://images.pexels.com/photos/1346187/pexels-photo-1346187.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '4',
-    name: 'Delhi',
-    image: 'https://images.pexels.com/photos/1656684/pexels-photo-1656684.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '5',
-    name: 'Mumbai',
-    image: 'https://images.pexels.com/photos/2897531/pexels-photo-2897531.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-];
-
-const trendingFashionData: FashionCard[] = [
-  {
-    id: '1',
-    name: 'Korean',
-    image: 'https://images.pexels.com/photos/1549974/pexels-photo-1549974.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '2',
-    name: '',
-    image: 'https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '3',
-    name: 'Old Money',
-    image: 'https://images.pexels.com/photos/1043473/pexels-photo-1043473.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-];
-
-const lifestyleData: LifestyleCard[] = [
-  {
-    id: '1',
-    name: 'Summer',
-    image: 'https://images.pexels.com/photos/1266808/pexels-photo-1266808.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '2',
-    name: 'Work',
-    image: 'https://images.pexels.com/photos/1300550/pexels-photo-1300550.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-  {
-    id: '3',
-    name: 'Vacation',
-    image: 'https://images.pexels.com/photos/1042423/pexels-photo-1042423.jpeg?auto=compress&cs=tinysrgb&w=400'
-  },
-];
-
-const myBrandsData: BrandCard[] = [
-  { id: '1', name: 'H&M', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/H%26M-Logo.svg/2560px-H%26M-Logo.svg.png' },
-  { id: '2', name: 'ZARA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Zara_Logo.svg/2560px-Zara_Logo.svg.png' },
-  { id: '3', name: 'Adidas', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/2560px-Adidas_Logo.svg.png' },
-];
 
 export default function Discovery() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -192,56 +103,15 @@ export default function Discovery() {
     <View className="flex-1 bg-black">
       <StatusBar barStyle="dark-content" />
 
-      {/* Header */}
-      <View
-        style={{
-          paddingTop: insets.top,
-          width: SCREEN_WIDTH,
-          height: 100 + insets.top,
-          backgroundColor: '#FDFFF2',
-          borderBottomLeftRadius: 24,
-          borderBottomRightRadius: 24,
-          justifyContent: 'center',
-        }}
-      >
-        <View className="flex-row items-center px-4 w-full">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              marginRight: 12
-            }}
-          >
-            <LeftArrowIcon size={44} color="#000" />
-          </TouchableOpacity>
-
-          {/* Search Bar */}
-          <View
-            className="flex-1 flex-row items-center px-3"
-            style={{
-              backgroundColor: '#F7F8DB',
-              borderRadius: 24,
-              height: 44,
-            }}
-          >
-            <MagnifyingGlassIcon size={16} color="#000" />
-            <TextInput
-              className="flex-1 ml-2 text-sm text-black"
-              placeholder={isListening ? "Listening..." : "Looking for something today?"}
-              placeholderTextColor={isListening ? "#ff0000" : "#000"}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              returnKeyType="search"
-            />
-            <TouchableOpacity className="ml-2" onPress={handleCamera}>
-              <CameraIcon size={20} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity className="ml-2" onPress={handleMic}>
-              <MicrophoneIcon size={20} color={isListening ? "red" : "#000"} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-
+      <DiscoveryHeader
+        insets={insets}
+        router={router}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isListening={isListening}
+        handleCamera={handleCamera}
+        handleMic={handleMic}
+      />
 
       {/* Feed Section */}
       <View
@@ -299,114 +169,27 @@ export default function Discovery() {
           ) : (
             // Default Discovery View
             <>
-              {/* Near You Section */}
-              <View className="px-4 mb-6">
-                <Text className="text-black text-base font-bold mb-3">Near You</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-3">
-                    {nearYouData.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        className="relative overflow-hidden"
-                        style={{ width: CARD_WIDTH, borderRadius: 16 }}
-                      >
-                        <Image
-                          source={{ uri: item.image }}
-                          style={{ width: CARD_WIDTH, height: CARD_WIDTH * 1.2, borderRadius: 16 }}
-                          resizeMode="cover"
-                        />
-                        <View className="absolute bottom-2 left-0 right-0 items-center">
-                          <Text className="text-white text-xs font-semibold text-center" style={{ textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 }}>
-                            {item.name}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* Trending Fashion Section */}
-              <View className="px-4 mb-6">
-                <Text className="text-black text-base font-bold mb-3">Trending Fashion</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-3">
-                    {trendingFashionData.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        className="relative overflow-hidden"
-                        style={{ width: CARD_WIDTH, borderRadius: 16 }}
-                      >
-                        <Image
-                          source={{ uri: item.image }}
-                          style={{ width: CARD_WIDTH, height: CARD_WIDTH * 1.2, borderRadius: 16 }}
-                          resizeMode="cover"
-                        />
-                        {item.name && (
-                          <View className="absolute bottom-2 left-0 right-0 items-center">
-                            <Text className="text-white text-xs font-semibold text-center" style={{ textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 }}>
-                              {item.name}
-                            </Text>
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* Lifestyle Section */}
-              <View className="px-4 mb-6">
-                <Text className="text-black text-base font-bold mb-3">Lifestyle</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-3">
-                    {lifestyleData.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        className="relative overflow-hidden"
-                        style={{ width: CARD_WIDTH, borderRadius: 16 }}
-                      >
-                        <Image
-                          source={{ uri: item.image }}
-                          style={{ width: CARD_WIDTH, height: CARD_WIDTH * 1.2, borderRadius: 16 }}
-                          resizeMode="cover"
-                        />
-                        <View className="absolute bottom-2 left-0 right-0 items-center">
-                          <Text className="text-white text-xs font-semibold text-center" style={{ textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 }}>
-                            {item.name}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-
-              {/* My Brands Section */}
-              <View className="px-4 mb-6">
-                <Text className="text-black text-base font-bold mb-3">My Brands</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-3">
-                    {myBrandsData.map((item) => (
-                      <TouchableOpacity
-                        key={item.id}
-                        className="bg-white items-center justify-center"
-                        style={{
-                          width: CARD_WIDTH,
-                          height: CARD_WIDTH * 0.9,
-                          borderRadius: 16,
-                        }}
-                      >
-                        <Image
-                          resizeMode="contain"
-                          source={{ uri: item.logo }}
-                          style={{ width: CARD_WIDTH * 0.7, height: CARD_WIDTH * 0.5 }}
-                        />
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
+              <DiscoverySection
+                title="Near You"
+                data={nearYouData}
+                cardWidth={CARD_WIDTH}
+              />
+              <DiscoverySection
+                title="Trending Fashion"
+                data={trendingFashionData}
+                cardWidth={CARD_WIDTH}
+              />
+              <DiscoverySection
+                title="Lifestyle"
+                data={lifestyleData}
+                cardWidth={CARD_WIDTH}
+              />
+              <DiscoverySection
+                title="My Brands"
+                data={myBrandsData}
+                cardWidth={CARD_WIDTH}
+                type="brand"
+              />
             </>
           )}
         </ScrollView>

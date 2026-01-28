@@ -13,7 +13,8 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCart, CartItem } from '@/contexts/CartContext';
-import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+
+import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -271,7 +272,7 @@ export default function Cart() {
             onPress={() => router.back()}
             className="w-10 h-10 items-center justify-center"
           >
-            <ChevronLeftIcon size={24} color="black" strokeWidth={2} />
+            <LeftArrowIcon size={32} color="#000" />
           </TouchableOpacity>
           <Text className="text-black text-xl font-bold ml-2">My Cart</Text>
         </View>

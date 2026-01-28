@@ -12,7 +12,7 @@ const FOOTER_HEIGHT = 90;
 const FOOTER_BORDER_RADIUS = 24;
 const FOOTER_PADDING_HORIZONTAL = 32;
 // Increased size for custom SVGs as per user request
-const ICON_SIZE = 40;
+const ICON_SIZE = 45;
 const CART_ICON_SIZE = 20;
 const BRAND_FONT_SIZE = 24;
 
@@ -27,10 +27,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
       backgroundColor: '#E1E2C3',
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: FOOTER_PADDING_HORIZONTAL,
       borderTopLeftRadius: FOOTER_BORDER_RADIUS,
       borderTopRightRadius: FOOTER_BORDER_RADIUS,
+      paddingHorizontal: 24,
       // Shadow
       shadowColor: "#000",
       shadowOffset: {
@@ -42,58 +41,67 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
       elevation: 2,
     }}>
       {/* Home */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('index')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
-      >
-        <HomeIcon size={ICON_SIZE} color={state.index === 0 ? "black" : "#666"} strokeWidth={state.index === 0 ? 2.5 : 2} />
-      </TouchableOpacity>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('index')}
+          style={{ padding: 8 }}
+        >
+          <HomeIcon size={ICON_SIZE} color={state.index === 0 ? "black" : "#666"} strokeWidth={state.index === 0 ? 2.5 : 2} />
+        </TouchableOpacity>
+      </View>
 
       {/* Discovery/Search */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('discovery')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
-      >
-        <SearchIcon size={ICON_SIZE} color={state.index === 1 ? "black" : "#666"} />
-      </TouchableOpacity>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('discovery')}
+          style={{ padding: 8 }}
+        >
+          <SearchIcon size={ICON_SIZE} color={state.index === 1 ? "black" : "#666"} />
+        </TouchableOpacity>
+      </View>
 
       {/* SWIRL Brand Text */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('swirl')}
-        style={{
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          backgroundColor: state.index === 2 ? 'white' : 'transparent',
-          borderRadius: 9999,
-        }}
-      >
-        <Text style={{
-          fontSize: BRAND_FONT_SIZE,
-          fontWeight: '900',
-          fontFamily: 'DMSans_900Bold',
-          color: state.index === 2 ? 'black' : '#666',
-          letterSpacing: 1.5,
-          lineHeight: 28
-        }}>SWIRL.</Text>
-      </TouchableOpacity>
+      <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('swirl')}
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            backgroundColor: state.index === 2 ? 'white' : 'transparent',
+            borderRadius: 16,
+          }}
+        >
+          <Text style={{
+            fontSize: 24,
+            fontFamily: 'DMSans_700Bold',
+            color: state.index === 2 ? 'black' : 'black',
+            letterSpacing: 0,
+            lineHeight: 24,
+          }}>SWIRL.</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Cart */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('cart')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
-      >
-        <CartIcon size={CART_ICON_SIZE} color={state.index === 3 ? "black" : "#666"} strokeWidth={state.index === 3 ? 2.5 : 2} />
-      </TouchableOpacity>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('cart')}
+          style={{ padding: 8 }}
+        >
+          <CartIcon size={CART_ICON_SIZE} color={state.index === 3 ? "black" : "#666"} strokeWidth={state.index === 3 ? 2.5 : 2} />
+        </TouchableOpacity>
+      </View>
 
       {/* Profile */}
-      <TouchableOpacity
-        onPress={() => navigation.navigate('account')}
-        style={{ alignItems: 'center', justifyContent: 'center', padding: 8 }}
-      >
-        <ProfileIcon size={ICON_SIZE} color={state.index === 4 ? "black" : "#666"} />
-      </TouchableOpacity>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('account')}
+          style={{ padding: 8 }}
+        >
+          <ProfileIcon size={ICON_SIZE} color={state.index === 4 ? "black" : "#666"} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

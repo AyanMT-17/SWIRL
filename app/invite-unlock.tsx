@@ -87,7 +87,7 @@ export default function InviteUnlock() {
 
                         {/* Unlock Access Button */}
                         <TouchableOpacity
-                            onPress={handleUnlock}
+                            onPress={() => router.replace('/(tabs)?showTour=true')}
                             style={{
                                 backgroundColor: '#E4AD82',
                                 width: SCREEN_WIDTH,
@@ -104,7 +104,7 @@ export default function InviteUnlock() {
 
                         {/* Don't have a code? */}
                         <TouchableOpacity
-                            onPress={() => router.replace('/(tabs)')}
+                            onPress={() => router.replace('/(tabs)?showTour=true')}
                             style={{ marginTop: 24 }}
                         >
                             <Text className="text-gray-400 text-center text-sm">

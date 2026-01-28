@@ -18,19 +18,7 @@ const BUTTON_BORDER_RADIUS = Math.round(24 * scale);
 const COUNTRIES = [
     { code: 'IN', name: 'India', flag: '🇮🇳' },
     { code: 'US', name: 'United States', flag: '🇺🇸' },
-    { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' },
-    { code: 'CA', name: 'Canada', flag: '🇨🇦' },
-    { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-    { code: 'DE', name: 'Germany', flag: '🇩🇪' },
-    { code: 'FR', name: 'France', flag: '🇫🇷' },
-    { code: 'JP', name: 'Japan', flag: '🇯🇵' },
-    { code: 'SG', name: 'Singapore', flag: '🇸🇬' },
-    { code: 'AE', name: 'United Arab Emirates', flag: '🇦🇪' },
-    { code: 'NZ', name: 'New Zealand', flag: '🇳🇿' },
-    { code: 'IT', name: 'Italy', flag: '🇮🇹' },
-    { code: 'ES', name: 'Spain', flag: '🇪🇸' },
-    { code: 'NL', name: 'Netherlands', flag: '🇳🇱' },
-    { code: 'SE', name: 'Sweden', flag: '🇸🇪' },
+    { code: 'UAE', name: 'United Arab Emirates', flag: '🇦🇪' },
 ];
 
 export default function LocationSelect() {
