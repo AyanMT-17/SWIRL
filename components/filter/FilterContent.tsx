@@ -45,13 +45,13 @@ export default function FilterContent({
 
     const renderBrandsContent = () => (
         <View className="flex-1">
-            <View className="px-4 py-3">
-                <View className="bg-white rounded-xl px-3 py-2.5 flex-row items-center border border-gray-200">
-                    <MagnifyingGlassIcon size={16} color="#888" />
+            <View className="px-4 py-4">
+                <View className="bg-[#F7F8DB] rounded-full px-5 py-3 flex-row items-center border border-[#F7F8DB]">
+                    <MagnifyingGlassIcon size={18} color="#000" strokeWidth={2.5} />
                     <TextInput
-                        className="flex-1 ml-2 text-sm text-gray-900"
+                        className="flex-1 ml-3 text-sm text-gray-900 font-medium"
                         placeholder="Search by Brand name"
-                        placeholderTextColor="#888"
+                        placeholderTextColor="#8C8C8C"
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                     />
@@ -82,19 +82,19 @@ export default function FilterContent({
                                     <TouchableOpacity
                                         key={brand}
                                         onPress={() => handleToggleItem('Brands', brand)}
-                                        className="flex-row items-center py-2"
+                                        className="flex-row items-center py-2.5"
                                     >
                                         <View
-                                            className={`w-5 h-5 rounded border-2 items-center justify-center mr-3 ${isItemSelected('Brands', brand)
+                                            className={`w-5 h-5 rounded-full border items-center justify-center mr-4 ${isItemSelected('Brands', brand)
                                                 ? 'bg-black border-black'
-                                                : 'bg-white border-gray-300'
+                                                : 'bg-white border-[#E5E7B9]'
                                                 }`}
                                         >
                                             {isItemSelected('Brands', brand) && (
-                                                <CheckIcon size={12} color="#fff" strokeWidth={3} />
+                                                <CheckIcon size={12} color="#F7F8DB" strokeWidth={4} />
                                             )}
                                         </View>
-                                        <Text className="text-sm text-gray-700">{brand}</Text>
+                                        <Text className={`text-sm ${isItemSelected('Brands', brand) ? 'font-bold text-gray-900' : 'text-gray-500'}`}>{brand}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -119,7 +119,7 @@ export default function FilterContent({
                         onPress={() => handleToggleItem('Size', option)}
                         className={`px-5 py-2.5 rounded-full border ${isItemSelected('Size', option)
                             ? 'bg-black border-black'
-                            : 'bg-white border-gray-300'
+                            : 'bg-white border-[#E5E7B9]'
                             }`}
                     >
                         <Text
@@ -142,7 +142,7 @@ export default function FilterContent({
                         onPress={() => handleToggleItem('ShoeSize', option)}
                         className={`px-4 py-2.5 rounded-full border ${isItemSelected('ShoeSize', option)
                             ? 'bg-black border-black'
-                            : 'bg-white border-gray-300'
+                            : 'bg-white border-[#E5E7B9]'
                             }`}
                     >
                         <Text
@@ -173,7 +173,7 @@ export default function FilterContent({
                         onPress={() => handleToggleItem('Shoes', option)}
                         className={`px-4 py-2.5 rounded-full border ${isItemSelected('Shoes', option)
                             ? 'bg-black border-black'
-                            : 'bg-white border-gray-300'
+                            : 'bg-white border-[#E5E7B9]'
                             }`}
                     >
                         <Text
@@ -196,7 +196,7 @@ export default function FilterContent({
                         onPress={() => handleToggleItem('ShoeSize', option)}
                         className={`px-4 py-2.5 rounded-full border ${isItemSelected('ShoeSize', option)
                             ? 'bg-black border-black'
-                            : 'bg-white border-gray-300'
+                            : 'bg-white border-[#E5E7B9]'
                             }`}
                     >
                         <Text
@@ -226,7 +226,7 @@ export default function FilterContent({
                         onPress={() => handleToggleItem(category, option)}
                         className={`px-5 py-2.5 rounded-full border ${isItemSelected(category, option)
                             ? 'bg-black border-black'
-                            : 'bg-white border-gray-300'
+                            : 'bg-white border-[#E5E7B9]'
                             }`}
                     >
                         <Text
@@ -256,7 +256,7 @@ export default function FilterContent({
                         onPress={() => handleToggleItem('Price', range)}
                         className={`px-4 py-2.5 rounded-full border ${isItemSelected('Price', range)
                             ? 'bg-black border-black'
-                            : 'bg-white border-gray-300'
+                            : 'bg-white border-[#E5E7B9]'
                             }`}
                     >
                         <Text
@@ -272,22 +272,22 @@ export default function FilterContent({
             </View>
 
             <View className="flex-row items-center gap-3">
-                <View className="flex-1 bg-white rounded-xl px-3 py-2.5 border border-gray-200">
+                <View className="flex-1 bg-[#F7F8DB] rounded-2xl px-4 py-3 border border-[#E5E7B9]">
                     <TextInput
-                        className="text-sm text-gray-900"
+                        className="text-sm text-gray-900 font-bold"
                         placeholder="Min"
-                        placeholderTextColor="#888"
+                        placeholderTextColor="#8C8C8C"
                         value={priceMin}
                         onChangeText={setPriceMin}
                         keyboardType="numeric"
                     />
                 </View>
-                <Text className="text-gray-400">-</Text>
-                <View className="flex-1 bg-white rounded-xl px-3 py-2.5 border border-gray-200">
+                <Text className="text-gray-400 font-bold">-</Text>
+                <View className="flex-1 bg-[#F7F8DB] rounded-2xl px-4 py-3 border border-[#E5E7B9]">
                     <TextInput
-                        className="text-sm text-gray-900"
+                        className="text-sm text-gray-900 font-bold"
                         placeholder="Max"
-                        placeholderTextColor="#888"
+                        placeholderTextColor="#8C8C8C"
                         value={priceMax}
                         onChangeText={setPriceMax}
                         keyboardType="numeric"
