@@ -1,7 +1,9 @@
-import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ChevronLeftIcon, BackspaceIcon } from 'react-native-heroicons/outline';
+import { useAuth } from '@/contexts/AuthContext';
+import { Config } from '@/constants/Config';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -13,7 +15,9 @@ const scale = Math.min(widthScale, heightScale);
 export default function OtpVerify() {
     const router = useRouter();
     const { phone } = useLocalSearchParams();
+    const { verifyOtp, needsOnboarding } = useAuth();
     const [code, setCode] = useState(['', '', '', '']);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Mask phone number for display
     const maskPhone = (phoneNum: string) => {
@@ -25,7 +29,32 @@ export default function OtpVerify() {
         return phoneNum;
     };
 
+    const handleVerifyOtp = async (otpCode: string) => {
+        setIsLoading(true);
+
+        try {
+            const { error, user } = await verifyOtp(phone as string, otpCode);
+
+            if (error) {
+                Alert.alert('Error', error);
+                // Reset code on error
+                setCode(['', '', '', '']);
+            } else {
+                // Success - navigate based on onboarding status
+                console.log('[OtpVerify] Login successful, needsOnboarding:', needsOnboarding);
+                router.replace('/gender-select');
+            }
+        } catch (err: any) {
+            Alert.alert('Error', err.message || 'Verification failed');
+            setCode(['', '', '', '']);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleNumberPress = (num: string) => {
+        if (isLoading) return;
+
         const nextIndex = code.findIndex(digit => digit === '');
         if (nextIndex !== -1) {
             const newCode = [...code];
@@ -34,14 +63,15 @@ export default function OtpVerify() {
 
             // Auto-submit if filled
             if (nextIndex === 3) {
-                setTimeout(() => {
-                    router.push('/gender-select');
-                }, 500);
+                const otpCode = newCode.join('');
+                handleVerifyOtp(otpCode);
             }
         }
     };
 
     const handleDelete = () => {
+        if (isLoading) return;
+
         const lastIndex = code.map((val, i) => val !== '' ? i : -1).filter(i => i !== -1).pop();
         if (lastIndex !== undefined) {
             const newCode = [...code];
@@ -81,6 +111,16 @@ export default function OtpVerify() {
                     <Text className="text-gray-400 text-sm">
                         we've sent a code to {maskPhone(phone as string)}
                     </Text>
+                    {/* Dev mode hint */}
+                    {__DEV__ && (
+                        <Text className="text-blue-500 text-xs mt-2">
+                            Dev Mode: Use OTP {Config.DEV_OTP_CODE}
+                        </Text>
+                    )}
+                    {/* Loading indicator */}
+                    {isLoading && (
+                        <ActivityIndicator size="small" color="#ccfd51" style={{ marginTop: 8 }} />
+                    )}
                 </View>
 
                 {/* OTP Input Circles */}

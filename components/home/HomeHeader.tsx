@@ -15,6 +15,8 @@ interface HomeHeaderProps {
     handleReset: () => void;
     selectedCategory: string;
     onCategoryChange: (category: string) => void;
+    selectedSubcategory: string | null;
+    onSubcategoryChange: (subcategory: string) => void;
     onFilterPress: () => void;
 }
 
@@ -26,6 +28,8 @@ export default function HomeHeader({
     handleReset,
     selectedCategory,
     onCategoryChange,
+    selectedSubcategory,
+    onSubcategoryChange,
     onFilterPress
 }: HomeHeaderProps) {
     const insets = useSafeAreaInsets();
@@ -85,7 +89,7 @@ export default function HomeHeader({
                             fontWeight: '500',
                             fontFamily: 'DMSans_500Medium',
                             color: '#1f2937',
-                            textAlign: isSearchFocused ? 'left' : 'center',
+                            textAlign: 'left',
                             paddingVertical: 0,
                         }}
                         placeholder={isSearchFocused ? "What should i wear to the beach?" : "What's your vibe today?"}
@@ -119,6 +123,8 @@ export default function HomeHeader({
                 isSearchFocused={isSearchFocused}
                 selectedCategory={selectedCategory}
                 onCategoryChange={onCategoryChange}
+                selectedSubcategory={selectedSubcategory}
+                onSubcategoryChange={onSubcategoryChange}
                 onFilterPress={onFilterPress}
             />
         </View>

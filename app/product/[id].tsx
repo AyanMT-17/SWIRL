@@ -2,7 +2,8 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { View, Text, Image, ScrollView, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { ShoppingCartIcon } from 'react-native-heroicons/outline';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRecommendation } from '@/contexts/RecommendationContext';
+import { useProductFeed } from '@/contexts/ProductFeedContext';
+import { useCart } from '@/contexts/CartContext';
 import { useState, useCallback } from 'react';
 import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
 
@@ -13,25 +14,42 @@ const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
 export default function ProductDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { getProductById } = useRecommendation();
+  const { getProductById } = useProductFeed();
+  const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const product = getProductById(Number(id));
+  // Use string ID since backend uses string IDs
+  const product = getProductById(String(id));
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback(async () => {
     if (!selectedSize) {
       Alert.alert('Select Size', 'Please select a size first');
       return;
     }
+    if (!product) return;
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Convert product to CartContext Product format
+      const cartProduct = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        brand: product.brand,
+        product_images: product.product_images,
+      };
+
+      await addToCart(cartProduct, selectedSize, 1);
+      Alert.alert('Added to Cart', `${product.name} (Size: ${selectedSize}) added to your cart`);
+    } catch (error) {
+      console.error('[ProductDetails] Add to cart failed:', error);
+      Alert.alert('Error', 'Failed to add item to cart');
+    } finally {
       setLoading(false);
-      Alert.alert('Added to Cart', `${product?.name} (Size: ${selectedSize}) added to your cart`);
-    }, 500);
-  }, [product, selectedSize]);
+    }
+  }, [product, selectedSize, addToCart]);
 
   // If product not found (shouldn't happen in normal flow)
   if (!product) {

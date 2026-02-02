@@ -28,7 +28,7 @@ export default function DiscoverySection({ title, data, cardWidth, type = 'regul
                                 source={{ uri: type === 'brand' ? item.logo : item.image }}
                                 style={
                                     type === 'brand'
-                                        ? { width: cardWidth * 0.7, height: cardWidth * 0.5 }
+                                        ? { width: cardWidth * 0.9, height: cardWidth * 0.9 }
                                         : { width: cardWidth, height: cardWidth * 1.2, borderRadius: 16 }
                                 }
                                 resizeMode={type === 'brand' ? "contain" : "cover"}

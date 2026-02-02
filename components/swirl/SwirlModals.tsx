@@ -132,7 +132,7 @@ export default function SwirlModals({
 
                         {/* Collection Image Preview */}
                         <View className="items-center mb-6">
-                            <View className="bg-white rounded-2xl p-3 shadow-sm">
+                            <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 1, elevation: 1 }}>
                                 {selectedProductForCollection?.product_images[0]?.image_url ? (
                                     <Image
                                         source={{ uri: selectedProductForCollection.product_images[0].image_url }}
@@ -145,7 +145,7 @@ export default function SwirlModals({
                                     </View>
                                 )}
                                 {/* Small edit icon */}
-                                <TouchableOpacity className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full items-center justify-center shadow-sm">
+                                <TouchableOpacity style={{ position: 'absolute', top: 8, right: 8, width: 24, height: 24, backgroundColor: 'white', borderRadius: 12, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 1, elevation: 1 }}>
                                     <Ionicons name="add-outline" size={14} color="#666" />
                                 </TouchableOpacity>
                             </View>

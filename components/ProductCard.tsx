@@ -27,7 +27,7 @@ export default function ProductCard({ product, onLike, onDislike, onShare }: Pro
     while (thumbnails.length < 3) thumbnails.push(mainImage);
 
     return (
-        <View className="flex-1 rounded-[40px] overflow-hidden bg-white mx-2 relative mb-24 box-shadow-xl">
+        <View style={{ flex: 1, borderRadius: 40, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 8, position: 'relative', marginBottom: 96, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 8 }}>
             {/* Margin Bottom to account for floating tab bar overlap if needed, or we handle it in container */}
 
             {/* Main Image */}
@@ -48,10 +48,10 @@ export default function ProductCard({ product, onLike, onDislike, onShare }: Pro
 
             {/* Product Info Overlay */}
             <View className="absolute top-1/2 left-4 right-16">
-                <Text className="text-white text-3xl font-bold mb-1 shadow-black/50 shadow-lg">
+                <Text style={{ color: 'white', fontSize: 28, fontWeight: 'bold', marginBottom: 4, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 4 }}>
                     {product.brand}
                 </Text>
-                <Text className="text-gray-200 text-lg shadow-black/50 shadow-lg" numberOfLines={2}>
+                <Text style={{ color: '#e5e7eb', fontSize: 18, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 4 }} numberOfLines={2}>
                     {product.name}
                 </Text>
             </View>
@@ -63,7 +63,7 @@ export default function ProductCard({ product, onLike, onDislike, onShare }: Pro
                 <View className="flex-row items-center gap-6 pointer-events-auto bg-white/10 p-2 rounded-full backdrop-blur-md">
                     <TouchableOpacity
                         onPress={onDislike}
-                        className="w-16 h-16 bg-white rounded-3xl items-center justify-center shadow-lg"
+                        style={{ width: 64, height: 64, backgroundColor: 'white', borderRadius: 24, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 8 }}
                     >
                         <XMarkIcon size={32} color="black" />
                     </TouchableOpacity>
@@ -78,7 +78,7 @@ export default function ProductCard({ product, onLike, onDislike, onShare }: Pro
 
                     <TouchableOpacity
                         onPress={onLike}
-                        className="w-16 h-16 bg-white rounded-3xl items-center justify-center shadow-lg"
+                        style={{ width: 64, height: 64, backgroundColor: 'white', borderRadius: 24, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 8 }}
                     >
                         <HeartSolidIcon size={32} color="#eecfb4" />
                     </TouchableOpacity>

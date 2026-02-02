@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Image,
   ScrollView,
@@ -9,20 +9,25 @@ import {
   View,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeExpoSpeechRecognitionModule, useSafeSpeechRecognitionEvent } from "@/utils/SafeSpeechRecognition";
 import DiscoveryHeader from '@/components/discovery/DiscoveryHeader';
 import DiscoverySection from '@/components/discovery/DiscoverySection';
+import SwipeableProductCard from '@/components/SwipeableProductCard';
 import {
   nearYouData,
   trendingFashionData,
   lifestyleData,
   myBrandsData
 } from '@/components/discovery/data';
+import { API } from '@/services/api';
+import { Squares2X2Icon, RectangleStackIcon } from 'react-native-heroicons/outline';
+import { convertToAppProduct } from '@/contexts/ProductFeedContext';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CARD_WIDTH = 110;
 const FEED_BORDER_RADIUS = 24;
@@ -30,8 +35,15 @@ const FEED_BORDER_RADIUS = 24;
 export default function Discovery() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'swipe'>('grid');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [swipeContainerHeight, setSwipeContainerHeight] = useState(0);
+
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const debounceTimerInfo = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useSafeSpeechRecognitionEvent("start", () => setIsListening(true));
   useSafeSpeechRecognitionEvent("end", () => setIsListening(false));
@@ -45,6 +57,35 @@ export default function Discovery() {
     setIsListening(false);
   });
 
+  // Backend Search with Debounce
+  useEffect(() => {
+    if (debounceTimerInfo.current) clearTimeout(debounceTimerInfo.current);
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    debounceTimerInfo.current = setTimeout(async () => {
+      try {
+        const response = await API.products.getAll(1, 50, searchQuery);
+        const products = (response.data.data || []).map(convertToAppProduct);
+        setSearchResults(products);
+        setCurrentIndex(0); // Reset swipeable stack index
+      } catch (error) {
+        console.error("Search failed", error);
+        // Fallback or error handling
+      } finally {
+        setIsLoading(false);
+      }
+    }, 600); // 600ms debounce
+
+    return () => {
+      if (debounceTimerInfo.current) clearTimeout(debounceTimerInfo.current);
+    };
+  }, [searchQuery]);
 
   const handleCamera = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -86,18 +127,22 @@ export default function Discovery() {
     });
   };
 
-  const allFilteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+  // Swipeable Card Handlers
+  const handleLike = useCallback(() => {
+    setCurrentIndex(prev => prev + 1);
+  }, []);
 
-    const query = searchQuery.toLowerCase();
+  const handleSkip = useCallback(() => {
+    setCurrentIndex(prev => prev + 1);
+  }, []);
 
-    const places = nearYouData.filter(i => i.name.toLowerCase().includes(query)).map(i => ({ ...i, type: 'Place' }));
-    const fashion = trendingFashionData.filter(i => i.name && i.name.toLowerCase().includes(query)).map(i => ({ ...i, type: 'Fashion' }));
-    const lifestyle = lifestyleData.filter(i => i.name.toLowerCase().includes(query)).map(i => ({ ...i, type: 'Lifestyle' }));
-    const brands = myBrandsData.filter(i => i.name.toLowerCase().includes(query)).map(i => ({ ...i, image: i.logo, type: 'Brand' }));
+  const handleViewDetails = useCallback((productId: string) => {
+    router.push(`/product/${productId}`);
+  }, [router]);
 
-    return [...places, ...fashion, ...lifestyle, ...brands];
-  }, [searchQuery]);
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
 
   return (
     <View className="flex-1 bg-black">
@@ -105,12 +150,12 @@ export default function Discovery() {
 
       <DiscoveryHeader
         insets={insets}
-        router={router}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isListening={isListening}
         handleCamera={handleCamera}
         handleMic={handleMic}
+        onBack={handleBack}
       />
 
       {/* Feed Section */}
@@ -127,72 +172,130 @@ export default function Discovery() {
           overflow: 'hidden',
         }}
       >
-        <ScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 16, paddingBottom: 20 }}
-        >
-          {searchQuery.trim().length > 0 ? (
-            // Search Results View
-            <View className="px-4">
-              <Text className="text-black text-base font-bold mb-4">
-                Search Results ({allFilteredItems.length})
+        {searchQuery.trim().length > 0 ? (
+          // === API SEARCH RESULTS VIEW ===
+          <View className="flex-1">
+            {/* Search Header & Toggle */}
+            <View className="flex-row items-center justify-between px-4 pt-4 pb-2 z-10 bg-[#FDFFF2]">
+              <Text className="text-black text-base font-bold">
+                Results for "{searchQuery}"
               </Text>
 
-              {allFilteredItems.length === 0 ? (
-                <Text className="text-gray-500 text-center mt-10">No matches found.</Text>
-              ) : (
+              {/* Layout Toggle */}
+              <View className="flex-row bg-gray-200 rounded-full p-1 h-10 items-center">
+                <TouchableOpacity
+                  onPress={() => setViewMode('grid')}
+                  style={[
+                    { padding: 6, borderRadius: 9999 },
+                    viewMode === 'grid' && { backgroundColor: 'white', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 1, elevation: 1 }
+                  ]}
+                >
+                  <Squares2X2Icon size={20} color={viewMode === 'grid' ? '#000' : '#888'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setViewMode('swipe')}
+                  style={[
+                    { padding: 6, borderRadius: 9999 },
+                    viewMode === 'swipe' && { backgroundColor: 'white', shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 1, elevation: 1 }
+                  ]}
+                >
+                  <RectangleStackIcon size={20} color={viewMode === 'swipe' ? '#000' : '#888'} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {isLoading ? (
+              <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size="large" color="#000" />
+              </View>
+            ) : searchResults.length === 0 ? (
+              <View className="flex-1 items-center justify-center">
+                <Text className="text-gray-500">No products found.</Text>
+              </View>
+            ) : viewMode === 'grid' ? (
+              // === GRID VIEW ===
+              <ScrollView
+                className="flex-1"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingTop: 12, paddingBottom: 100, paddingHorizontal: 16 }}
+              >
                 <View className="flex-row flex-wrap justify-between">
-                  {allFilteredItems.map((item, index) => (
+                  {searchResults.map((item, index) => (
                     <TouchableOpacity
-                      key={`${item.type}-${item.id}-${index}`}
-                      className="mb-4 bg-white rounded-2xl overflow-hidden"
-                      style={{
-                        width: (SCREEN_WIDTH - 48) / 2,
-                        borderRadius: 16
-                      }}
+                      key={item.id || index}
+                      style={{ width: '48%', marginBottom: 16 }}
+                      onPress={() => router.push(`/product/${item.id}`)}
                     >
                       <Image
-                        source={{ uri: item.image }}
-                        style={{ width: '100%', aspectRatio: item.type === 'Brand' ? 1.5 : 0.8 }}
-                        resizeMode={item.type === 'Brand' ? "contain" : "cover"}
+                        source={{ uri: item.product_images?.[0]?.image_url }}
+                        style={{ width: '100%', aspectRatio: 0.75, borderRadius: 12 }}
+                        resizeMode="cover"
                       />
-                      <View className="p-2 bg-white">
-                        <Text className="text-black font-semibold text-sm">{item.name}</Text>
-                        <Text className="text-gray-400 text-xs">{item.type}</Text>
+                      <View className="p-3 bg-white rounded-b-xl">
+                        <Text className="text-black font-semibold text-sm" numberOfLines={1}>{item.name}</Text>
+                        <Text className="text-gray-500 text-xs mt-1">{item.brand}</Text>
+                        <Text className="text-black font-bold text-sm mt-1">₹ {item.price}</Text>
                       </View>
                     </TouchableOpacity>
                   ))}
                 </View>
-              )}
-            </View>
-          ) : (
-            // Default Discovery View
-            <>
-              <DiscoverySection
-                title="Near You"
-                data={nearYouData}
-                cardWidth={CARD_WIDTH}
-              />
-              <DiscoverySection
-                title="Trending Fashion"
-                data={trendingFashionData}
-                cardWidth={CARD_WIDTH}
-              />
-              <DiscoverySection
-                title="Lifestyle"
-                data={lifestyleData}
-                cardWidth={CARD_WIDTH}
-              />
-              <DiscoverySection
-                title="My Brands"
-                data={myBrandsData}
-                cardWidth={CARD_WIDTH}
-                type="brand"
-              />
-            </>
-          )}
-        </ScrollView>
+              </ScrollView>
+            ) : (
+              // === SWIPE VIEW ===
+              <View
+                style={{ flex: 1, position: 'relative', paddingBottom: 8 }}
+                onLayout={(e) => setSwipeContainerHeight(e.nativeEvent.layout.height - 16)}
+              >
+                {currentIndex < searchResults.length ? (
+                  <SwipeableProductCard
+                    key={searchResults[currentIndex].id}
+                    product={searchResults[currentIndex]}
+                    onLike={handleLike}
+                    onSkip={handleSkip}
+                    onViewDetails={() => handleViewDetails(searchResults[currentIndex].id)}
+                    onAddToCart={(size) => Alert.alert('Added', `Size ${size} added`)}
+                    onBuyNow={(size) => Alert.alert('Buying', `Size ${size}`)}
+                    isFirst={true}
+                    containerHeight={swipeContainerHeight > 0 ? swipeContainerHeight : undefined}
+                  />
+                ) : (
+                  <View className="flex-1 items-center justify-center">
+                    <Text className="text-gray-500 text-lg">That's all for now!</Text>
+                    <TouchableOpacity
+                      className="mt-4 bg-black px-6 py-3 rounded-full"
+                      onPress={() => setCurrentIndex(0)}
+                    >
+                      <Text className="text-white font-bold">Start Over</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        ) : (
+          // === DEFAULT DISCOVERY VIEW (Local) ===
+          <ScrollView
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingTop: 16, paddingBottom: 20 }}
+          >
+            <DiscoverySection
+              title="Near You"
+              data={nearYouData}
+              cardWidth={CARD_WIDTH}
+            />
+            <DiscoverySection
+              title="Trending Fashion"
+              data={trendingFashionData}
+              cardWidth={CARD_WIDTH}
+            />
+            <DiscoverySection
+              title="Lifestyle"
+              data={lifestyleData}
+              cardWidth={CARD_WIDTH}
+            />
+          </ScrollView>
+        )}
       </View>
     </View>
   );

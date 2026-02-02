@@ -80,7 +80,7 @@ export default function OnboardingTour({ visible, onComplete, onSkip }: Onboardi
                 {/* Action Button */}
                 <TouchableOpacity
                     onPress={handleNext}
-                    className="bg-black border border-white rounded-2xl px-12 py-4 shadow-lg shadow-white/20"
+                    style={{ backgroundColor: 'black', borderWidth: 1, borderColor: 'white', borderRadius: 16, paddingHorizontal: 48, paddingVertical: 16, shadowColor: 'rgba(255,255,255,0.2)', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 1, shadowRadius: 8, elevation: 8 }}
                 >
                     <Text className="text-white text-lg font-bold">
                         {currentStep.actionLabel}

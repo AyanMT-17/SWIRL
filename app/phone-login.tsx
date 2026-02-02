@@ -1,7 +1,9 @@
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Modal, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, Dimensions, Modal, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ArrowRightIcon, ChevronDownIcon, XMarkIcon } from 'react-native-heroicons/outline';
+import { useAuth } from '@/contexts/AuthContext';
+import { Config } from '@/constants/Config';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -25,13 +27,39 @@ const COUNTRIES = [
 
 export default function PhoneLogin() {
     const router = useRouter();
+    const { requestOtp } = useAuth();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [inviteCode, setInviteCode] = useState('');
     const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
     const [showCountryPicker, setShowCountryPicker] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleNext = () => {
-        router.push(`/otp-verify?phone=${encodeURIComponent(selectedCountry.dialCode + phoneNumber)}`);
+    const handleNext = async () => {
+        if (!phoneNumber || phoneNumber.length < 10) {
+            Alert.alert('Error', 'Please enter a valid phone number');
+            return;
+        }
+
+        const fullPhoneNumber = selectedCountry.dialCode + phoneNumber;
+        setIsLoading(true);
+
+        try {
+            const { error, message } = await requestOtp(fullPhoneNumber);
+
+            if (error) {
+                Alert.alert('Error', error);
+            } else {
+                // Show dev hint
+                if (__DEV__) {
+                    console.log(`[PhoneLogin] Dev Mode - Use OTP: ${Config.DEV_OTP_CODE}`);
+                }
+                router.push(`/otp-verify?phone=${encodeURIComponent(fullPhoneNumber)}`);
+            }
+        } catch (err: any) {
+            Alert.alert('Error', err.message || 'Something went wrong');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSelectCountry = (country: typeof COUNTRIES[0]) => {

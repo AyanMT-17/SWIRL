@@ -13,6 +13,8 @@ interface CategoryFilterProps {
     isSearchFocused: boolean;
     selectedCategory: string;
     onCategoryChange: (category: string) => void;
+    selectedSubcategory: string | null;
+    onSubcategoryChange: (subcategory: string) => void;
     onFilterPress: () => void;
 }
 
@@ -20,6 +22,8 @@ export default function CategoryFilter({
     isSearchFocused,
     selectedCategory,
     onCategoryChange,
+    selectedSubcategory,
+    onSubcategoryChange,
     onFilterPress
 }: CategoryFilterProps) {
     if (isSearchFocused) {
@@ -43,19 +47,19 @@ export default function CategoryFilter({
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 gap: 6,
-                                backgroundColor: selectedCategory === category ? '#000' : '#fff',
+                                backgroundColor: selectedCategory === category ? '#000' : '#FDFFF2',
                                 borderColor: selectedCategory === category ? '#000' : '#d1d5db',
                             }}
                         >
                             {category === 'Trending' && (
-                                <ArrowTrendingUpIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />
+                                <ArrowTrendingUpIcon size={14} color={selectedCategory === category ? '#FDFFF2' : '#000'} />
                             )}
                             <Text
                                 style={{
                                     fontSize: 14,
                                     fontWeight: '600',
                                     fontFamily: 'DMSans_600SemiBold',
-                                    color: selectedCategory === category ? '#fff' : '#111827',
+                                    color: selectedCategory === category ? '#FDFFF2' : '#111827',
                                 }}
                             >
                                 {category}
@@ -73,7 +77,7 @@ export default function CategoryFilter({
                     {SEARCH_SECONDARY_CATEGORIES.map((category) => (
                         <TouchableOpacity
                             key={category}
-                            onPress={() => onCategoryChange(category)}
+                            onPress={() => onSubcategoryChange(category)}
                             style={{
                                 paddingHorizontal: 16,
                                 paddingVertical: 10,
@@ -82,20 +86,20 @@ export default function CategoryFilter({
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 gap: 6,
-                                backgroundColor: selectedCategory === category ? '#000' : '#fff',
-                                borderColor: selectedCategory === category ? '#000' : '#d1d5db',
+                                backgroundColor: selectedSubcategory === category ? '#000' : '#FDFFF2',
+                                borderColor: selectedSubcategory === category ? '#000' : '#d1d5db',
                             }}
                         >
-                            {category === 'Lite' && <SparklesIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
-                            {category === 'Premium' && <StarIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
-                            {category === 'Luxe' && <SparklesIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
-                            {category === 'Street wear' && <TagIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
+                            {category === 'Lite' && <SparklesIcon size={14} color={selectedSubcategory === category ? '#FDFFF2' : '#000'} />}
+                            {category === 'Premium' && <StarIcon size={14} color={selectedSubcategory === category ? '#FDFFF2' : '#000'} />}
+                            {category === 'Luxe' && <SparklesIcon size={14} color={selectedSubcategory === category ? '#FDFFF2' : '#000'} />}
+                            {category === 'Street wear' && <TagIcon size={14} color={selectedSubcategory === category ? '#FDFFF2' : '#000'} />}
                             <Text
                                 style={{
                                     fontSize: 14,
                                     fontWeight: '600',
                                     fontFamily: 'DMSans_600SemiBold',
-                                    color: selectedCategory === category ? '#fff' : '#111827',
+                                    color: selectedSubcategory === category ? '#FDFFF2' : '#111827',
                                 }}
                             >
                                 {category}
@@ -120,7 +124,7 @@ export default function CategoryFilter({
                         height: BUTTON_SIZE,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: '#fff',
+                        backgroundColor: '#FDFFF2',
                         borderRadius: BUTTON_SIZE / 2,
                         borderWidth: 1,
                         borderColor: '#e5e7eb',
@@ -141,7 +145,7 @@ export default function CategoryFilter({
                             paddingVertical: 10,
                             borderRadius: 9999,
                             borderWidth: 1,
-                            backgroundColor: selectedCategory === category ? '#000' : '#fff',
+                            backgroundColor: selectedCategory === category ? '#000' : '#FDFFF2',
                             borderColor: selectedCategory === category ? '#000' : '#d1d5db',
                             minWidth: selectedCategory === category ? 44 : 0,
                             alignItems: 'center',
@@ -153,7 +157,7 @@ export default function CategoryFilter({
                                 fontSize: 14,
                                 fontWeight: '600',
                                 fontFamily: 'DMSans_600SemiBold',
-                                color: selectedCategory === category ? '#fff' : '#111827',
+                                color: selectedCategory === category ? '#FDFFF2' : '#111827',
                             }}
                         >
                             {category}
@@ -174,7 +178,7 @@ export default function CategoryFilter({
                 {SECONDARY_CATEGORIES.map((category) => (
                     <TouchableOpacity
                         key={category}
-                        onPress={() => onCategoryChange(category)}
+                        onPress={() => onSubcategoryChange(category)}
                         style={{
                             paddingHorizontal: 20,
                             paddingVertical: 10,
@@ -183,18 +187,18 @@ export default function CategoryFilter({
                             flexDirection: 'row',
                             alignItems: 'center',
                             gap: 6,
-                            backgroundColor: selectedCategory === category ? '#000' : '#fff',
-                            borderColor: selectedCategory === category ? '#000' : '#d1d5db',
+                            backgroundColor: selectedSubcategory === category ? '#000' : '#FDFFF2',
+                            borderColor: selectedSubcategory === category ? '#000' : '#d1d5db',
                         }}
                     >
-                        {category === 'Lite' && <SparklesIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
-                        {category === 'Premium' && <StarIcon size={14} color={selectedCategory === category ? '#fff' : '#000'} />}
+                        {category === 'Lite' && <SparklesIcon size={14} color={selectedSubcategory === category ? '#FDFFF2' : '#000'} />}
+                        {category === 'Premium' && <StarIcon size={14} color={selectedSubcategory === category ? '#FDFFF2' : '#000'} />}
                         <Text
                             style={{
                                 fontSize: 14,
                                 fontWeight: '600',
                                 fontFamily: 'DMSans_600SemiBold',
-                                color: selectedCategory === category ? '#fff' : '#111827',
+                                color: selectedSubcategory === category ? '#FDFFF2' : '#111827',
                             }}
                         >
                             {category}

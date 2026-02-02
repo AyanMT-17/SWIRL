@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, Dimensions, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Dimensions, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { FilterState } from '@/components/FilterModal';
 import FilterModal from '@/components/FilterModal';
-import { useRecommendation } from '@/contexts/RecommendationContext';
+import { useProductFeed } from '@/contexts/ProductFeedContext';
 import SwipeableProductCard from '@/components/SwipeableProductCard';
 import OnboardingTour from '@/components/OnboardingTour';
 import HomeHeader from '@/components/home/HomeHeader';
@@ -13,57 +13,75 @@ const { width } = Dimensions.get('window');
 export default function Home() {
   const router = useRouter();
   const params = useLocalSearchParams();
+
+  // Use new ProductFeedContext (backend data)
   const {
+    products,
+    currentProduct,
+    nextProduct,
+    isLoading,
+    isPreFetching,
+    error,
+    remainingCount,
     handleSwipeRight,
     handleSwipeLeft,
-    getRecommendedProducts,
-    isLoading,
-    resetData
-  } = useRecommendation();
+    resetFeed,
+    refreshFeed,
+  } = useProductFeed();
 
   const [selectedCategory, setSelectedCategory] = useState('Top');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [cardContainerHeight, setCardContainerHeight] = useState(0);
 
   const handleTourComplete = () => {
     router.setParams({ showTour: '' });
   };
 
+  // Filter products by category and search
   const availableProducts = useMemo(() => {
-    const recommended = getRecommendedProducts();
-    return recommended.filter(product => {
+    return products.filter(product => {
       const productCategories = product.categories || [product.category];
-      const matchesCategory = productCategories.includes(selectedCategory);
+      // Must match primary category (Top/Bottom/Foot)
+      const matchesPrimaryCategory = productCategories.some(cat =>
+        cat.toLowerCase().includes(selectedCategory.toLowerCase())
+      );
+      // Optionally match secondary subcategory (Lite/Premium/Luxe/Streetwear)
+      const matchesSubcategory = !selectedSubcategory || productCategories.some(cat =>
+        cat.toLowerCase().includes(selectedSubcategory.toLowerCase())
+      );
       const matchesSearch = searchQuery === '' ||
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.brand.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      return matchesPrimaryCategory && matchesSubcategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery, getRecommendedProducts]);
+  }, [products, selectedCategory, selectedSubcategory, searchQuery]);
 
-  const currentProduct = availableProducts[0];
-  const nextProduct = availableProducts[1];
+  // Get current and next from filtered list
+  const filteredCurrentProduct = availableProducts[0];
+  const filteredNextProduct = availableProducts[1];
 
   const handleLike = useCallback(async () => {
-    if (currentProduct) {
-      await handleSwipeRight(currentProduct);
+    if (filteredCurrentProduct) {
+      await handleSwipeRight(filteredCurrentProduct);
     }
-  }, [currentProduct, handleSwipeRight]);
+  }, [filteredCurrentProduct, handleSwipeRight]);
 
   const handleSkip = useCallback(async () => {
-    if (currentProduct) {
-      await handleSwipeLeft(currentProduct);
+    if (filteredCurrentProduct) {
+      await handleSwipeLeft(filteredCurrentProduct);
     }
-  }, [currentProduct, handleSwipeLeft]);
+  }, [filteredCurrentProduct, handleSwipeLeft]);
 
   const handleViewDetails = useCallback(async () => {
-    if (currentProduct) {
-      router.push(`/product/${currentProduct.id}`);
+    if (filteredCurrentProduct) {
+      router.push(`/product/${filteredCurrentProduct.id}`);
     }
-  }, [currentProduct, router]);
+  }, [filteredCurrentProduct, router]);
 
   const handleAddToCart = useCallback(async (size: string) => {
     // Placeholder interaction record if needed
@@ -87,23 +105,50 @@ export default function Home() {
           text: 'Reset',
           style: 'destructive',
           onPress: async () => {
-            await resetData();
+            await resetFeed();
             Alert.alert('Reset Complete', 'Your feed has been reset.');
           }
         }
       ]
     );
-  }, [resetData]);
+  }, [resetFeed]);
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategory(category);
     setCurrentIndex(0);
   }, []);
 
+  const handleSubcategoryChange = useCallback((subcategory: string) => {
+    // Toggle: if already selected, deselect it; otherwise select it
+    setSelectedSubcategory(prev => prev === subcategory ? null : subcategory);
+    setCurrentIndex(0);
+  }, []);
+
+  // Loading state
   if (isLoading) {
     return (
       <View className="flex-1 bg-[#F5F3EE] items-center justify-center">
-        <Text className="text-gray-600">Loading...</Text>
+        <ActivityIndicator size="large" color="#E8B298" />
+        <Text className="text-gray-600 mt-4">Loading products...</Text>
+        {isPreFetching && (
+          <Text className="text-gray-400 text-sm mt-2">Fetching more...</Text>
+        )}
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View className="flex-1 bg-[#F5F3EE] items-center justify-center p-8">
+        <Text className="text-red-500 text-lg font-bold mb-2">Error</Text>
+        <Text className="text-gray-600 text-center mb-4">{error}</Text>
+        <TouchableOpacity
+          onPress={refreshFeed}
+          className="bg-[#E8B298] px-6 py-3 rounded-full"
+        >
+          <Text className="font-bold text-gray-900">Try Again</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -119,13 +164,18 @@ export default function Home() {
           handleReset={handleReset}
           selectedCategory={selectedCategory}
           onCategoryChange={handleCategoryChange}
+          selectedSubcategory={selectedSubcategory}
+          onSubcategoryChange={handleSubcategoryChange}
           onFilterPress={() => setIsFilterVisible(true)}
         />
 
         {/* Card Stack Area */}
-        <View className="flex-1 items-center pt-1">
+        <View
+          className="flex-1 items-center pt-1"
+          onLayout={(e) => setCardContainerHeight(e.nativeEvent.layout.height - 100)}
+        >
           {availableProducts.length === 0 ? (
-            <View className="items-center justify-center p-8 bg-white rounded-3xl shadow-lg">
+            <View style={{ alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: 'white', borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 8 }}>
               <Text className="text-2xl font-bold text-gray-900 mb-2">
                 You've seen it all! 🎉
               </Text>
@@ -150,29 +200,31 @@ export default function Home() {
             </View>
           ) : (
             <View style={{ flex: 1, width: width, alignItems: 'center' }}>
-              {nextProduct && (
+              {filteredNextProduct && (
                 <SwipeableProductCard
-                  key={`next-${nextProduct.id}`}
-                  product={nextProduct}
+                  key={`next-${filteredNextProduct.id}`}
+                  product={filteredNextProduct}
                   onLike={() => { }}
                   onSkip={() => { }}
                   onViewDetails={() => { }}
                   onAddToCart={() => { }}
                   onBuyNow={() => { }}
                   isFirst={false}
+                  containerHeight={cardContainerHeight > 0 ? cardContainerHeight : undefined}
                 />
               )}
 
-              {currentProduct && (
+              {filteredCurrentProduct && (
                 <SwipeableProductCard
-                  key={`current-${currentProduct.id}`}
-                  product={currentProduct}
+                  key={`current-${filteredCurrentProduct.id}`}
+                  product={filteredCurrentProduct}
                   onLike={handleLike}
                   onSkip={handleSkip}
                   onViewDetails={handleViewDetails}
                   onAddToCart={handleAddToCart}
                   onBuyNow={handleBuyNow}
                   isFirst={true}
+                  containerHeight={cardContainerHeight > 0 ? cardContainerHeight : undefined}
                 />
               )}
             </View>

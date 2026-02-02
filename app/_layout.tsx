@@ -7,6 +7,8 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { LikesProvider } from '@/contexts/LikesContext';
+import { UserPreferencesProvider } from '@/contexts/UserPreferencesContext';
+import { ProductFeedProvider } from '@/contexts/ProductFeedContext';
 import { useFonts, DMSans_400Regular, DMSans_500Medium, DMSans_600SemiBold, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
 import * as SplashScreen from 'expo-splash-screen';
 import { View } from 'react-native';
@@ -39,26 +41,31 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <CartProvider>
-          <LikesProvider>
-            <RecommendationProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="onboarding" />
-                <Stack.Screen name="location-select" />
-                <Stack.Screen name="phone-login" />
-                <Stack.Screen name="otp-verify" />
-                <Stack.Screen name="gender-select" />
-                <Stack.Screen name="feed-select" />
-                <Stack.Screen name="invite-unlock" />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="+not-found" />
-                <Stack.Screen name="auth" />
-              </Stack>
-              <StatusBar style="dark" />
-            </RecommendationProvider>
-          </LikesProvider>
-        </CartProvider>
+        <UserPreferencesProvider>
+          <ProductFeedProvider>
+            <CartProvider>
+              <LikesProvider>
+                <RecommendationProvider>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="onboarding" />
+                    <Stack.Screen name="location-select" />
+                    <Stack.Screen name="phone-login" />
+                    <Stack.Screen name="otp-verify" />
+                    <Stack.Screen name="gender-select" />
+                    <Stack.Screen name="feed-select" />
+                    <Stack.Screen name="invite-unlock" />
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen name="+not-found" />
+                    <Stack.Screen name="auth" />
+                  </Stack>
+                  <StatusBar style="dark" />
+                </RecommendationProvider>
+              </LikesProvider>
+            </CartProvider>
+          </ProductFeedProvider>
+        </UserPreferencesProvider>
       </AuthProvider>
     </GestureHandlerRootView>
   );
 }
+

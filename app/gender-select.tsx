@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -11,7 +12,15 @@ const BUTTON_BORDER_RADIUS = 24;
 
 export default function GenderSelect() {
     const router = useRouter();
-    const [selectedGender, setSelectedGender] = useState<string | null>(null);
+    const { setGender, onboardingData } = useUserPreferences();
+    const [selectedGender, setSelectedGender] = useState<string | null>(onboardingData.gender || null);
+
+    const handleGenderSelect = (gender: string) => {
+        setSelectedGender(gender);
+        // Map to backend format: 'men' -> 'Men', 'women' -> 'Women'
+        const formattedGender = gender === 'men' ? 'Men' : 'Women';
+        setGender(formattedGender);
+    };
 
     const handleContinue = () => {
         if (selectedGender) {
@@ -57,7 +66,7 @@ export default function GenderSelect() {
                     style={{ marginTop: 40, paddingHorizontal: 10 }}
                 >
                     <TouchableOpacity
-                        onPress={() => setSelectedGender('men')}
+                        onPress={() => handleGenderSelect('men')}
                         className={`flex-1 py-4 rounded-full items-center justify-center ${selectedGender === 'men' ? 'bg-[#F7F8DB]' : 'bg-[#F5F5F5]'
                             }`}
                     >
@@ -65,7 +74,7 @@ export default function GenderSelect() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        onPress={() => setSelectedGender('women')}
+                        onPress={() => handleGenderSelect('women')}
                         className={`flex-1 py-4 rounded-full items-center justify-center ${selectedGender === 'women' ? 'bg-[#F7F8DB]' : 'bg-[#F5F5F5]'
                             }`}
                     >

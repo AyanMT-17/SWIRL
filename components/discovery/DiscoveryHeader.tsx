@@ -1,28 +1,28 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, Dimensions } from 'react-native';
-import { CameraIcon, MicrophoneIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline';
+import { View, TouchableOpacity, TextInput, Dimensions } from 'react-native';
+import { MagnifyingGlassIcon, CameraIcon, MicrophoneIcon } from 'react-native-heroicons/outline';
 import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface DiscoveryHeaderProps {
     insets: { top: number };
-    router: any;
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     isListening: boolean;
     handleCamera: () => void;
     handleMic: () => void;
+    onBack: () => void;
 }
 
 export default function DiscoveryHeader({
     insets,
-    router,
     searchQuery,
     setSearchQuery,
     isListening,
     handleCamera,
-    handleMic
+    handleMic,
+    onBack
 }: DiscoveryHeaderProps) {
     return (
         <View
@@ -34,16 +34,17 @@ export default function DiscoveryHeader({
                 borderBottomLeftRadius: 24,
                 borderBottomRightRadius: 24,
                 justifyContent: 'center',
+                zIndex: 100,
             }}
         >
             <View className="flex-row items-center px-4 w-full">
                 <TouchableOpacity
-                    onPress={() => router.back()}
+                    onPress={onBack}
                     style={{
                         marginRight: 12
                     }}
                 >
-                    <LeftArrowIcon size={44} color="#000" />
+                    <LeftArrowIcon size={44} />
                 </TouchableOpacity>
 
                 {/* Search Bar */}

@@ -37,6 +37,7 @@ interface SwipeableProductCardProps {
     onAddToCart: (size: string) => void;
     onBuyNow: (size: string) => void;
     isFirst?: boolean;
+    containerHeight?: number;
 }
 
 export default function SwipeableProductCard({
@@ -47,11 +48,13 @@ export default function SwipeableProductCard({
     onAddToCart,
     onBuyNow,
     isFirst = true,
+    containerHeight,
 }: SwipeableProductCardProps) {
     const insets = useSafeAreaInsets();
     const HEADER_HEIGHT = insets.top + 116;
     const BOTTOM_MARGIN = 8;
-    const CARD_HEIGHT = SCREEN_HEIGHT - HEADER_HEIGHT - GAP_SPACING - FOOTER_HEIGHT - BOTTOM_MARGIN;
+    // Use containerHeight if provided, otherwise calculate from screen dimensions
+    const CARD_HEIGHT = containerHeight || (SCREEN_HEIGHT - HEADER_HEIGHT - GAP_SPACING - FOOTER_HEIGHT - BOTTOM_MARGIN);
 
     const [contentHeight, setContentHeight] = useState(0);
     const MAX_ALLOWED_HEIGHT = CARD_HEIGHT * 0.6;

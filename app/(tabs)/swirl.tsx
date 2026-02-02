@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, ScrollView, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MOCK_PRODUCTS } from '@/constants/mockData';
+import { useProductFeed } from '@/contexts/ProductFeedContext';
 import { useRecommendation } from '@/contexts/RecommendationContext';
 import { useCart } from '@/contexts/CartContext';
 import { useRouter } from 'expo-router';
@@ -27,10 +27,15 @@ export default function Swirl() {
     const [collectionName, setCollectionName] = useState('');
     const [selectedProductForCollection, setSelectedProductForCollection] = useState<any>(null);
 
-    const { likedProductIds, collections, createCollection, addToCollection, removeFromSwirl } = useRecommendation();
+    // Use ProductFeedContext for liked products (backend data)
+    const { getLikedProducts, removeFromLiked } = useProductFeed();
+
+    // Use RecommendationContext for collections (local only for now)
+    const { collections, createCollection, addToCollection } = useRecommendation();
     const { addToCart } = useCart();
 
-    const likedProducts = MOCK_PRODUCTS.filter(p => likedProductIds.includes(p.id));
+    // Get liked products from the backend-synced context
+    const likedProducts = getLikedProducts();
 
     const handleAddToCollection = (product: any) => {
         setSelectedProductForCollection(product);
@@ -48,7 +53,7 @@ export default function Swirl() {
     };
 
     const handleRemoveFromSwirl = async (productId: string) => {
-        await removeFromSwirl(productId);
+        await removeFromLiked(productId);
     };
 
     const handleSelectProductForNewCollection = (product: any) => {

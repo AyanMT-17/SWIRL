@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ChevronLeftIcon, CheckCircleIcon } from 'react-native-heroicons/outline';
 import { CheckCircleIcon as CheckCircleSolidIcon } from 'react-native-heroicons/solid';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -26,7 +27,9 @@ const VIBES = [
 
 export default function FeedSelect() {
     const router = useRouter();
+    const { setLikes, completeOnboarding } = useUserPreferences();
     const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set());
+    const [isLoading, setIsLoading] = useState(false);
 
     const toggleVibe = (id: string) => {
         setSelectedVibes(prev => {
@@ -40,9 +43,29 @@ export default function FeedSelect() {
         });
     };
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (selectedVibes.size >= 2) {
-            router.push('/invite-unlock');
+            setIsLoading(true);
+
+            // Convert selected vibe IDs to vibe names for the likes array
+            const selectedVibeNames = VIBES
+                .filter(vibe => selectedVibes.has(vibe.id))
+                .map(vibe => vibe.name.toLowerCase());
+
+            // Save likes to context
+            setLikes(selectedVibeNames);
+
+            // Complete onboarding - save to local + backend
+            const { error } = await completeOnboarding();
+
+            setIsLoading(false);
+
+            if (error) {
+                Alert.alert('Error', error);
+            } else {
+                console.log('[FeedSelect] Onboarding complete, navigating');
+                router.replace('/invite-unlock');
+            }
         }
     };
 
