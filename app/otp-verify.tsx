@@ -3,6 +3,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ChevronLeftIcon, BackspaceIcon } from 'react-native-heroicons/outline';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserPreferences } from '@/contexts/UserPreferencesContext';
 import { Config } from '@/constants/Config';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -14,8 +15,9 @@ const scale = Math.min(widthScale, heightScale);
 
 export default function OtpVerify() {
     const router = useRouter();
-    const { phone } = useLocalSearchParams();
+    const { phone, countryCode } = useLocalSearchParams();
     const { verifyOtp, needsOnboarding } = useAuth();
+    const { setMobile, setCountry } = useUserPreferences();
     const [code, setCode] = useState(['', '', '', '']);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -33,14 +35,18 @@ export default function OtpVerify() {
         setIsLoading(true);
 
         try {
-            const { error, user } = await verifyOtp(phone as string, otpCode);
+            const { error, user } = await verifyOtp(phone as string, otpCode, 'user');
 
             if (error) {
                 Alert.alert('Error', error);
                 // Reset code on error
                 setCode(['', '', '', '']);
             } else {
-                // Success - navigate based on onboarding status
+                // Success - Save preferences
+                if (phone) setMobile(phone as string);
+                if (countryCode) setCountry(countryCode as string);
+
+                // Navigate based on onboarding status
                 console.log('[OtpVerify] Login successful, needsOnboarding:', needsOnboarding);
                 router.replace('/gender-select');
             }

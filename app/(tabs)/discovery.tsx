@@ -57,7 +57,9 @@ export default function Discovery() {
     setIsListening(false);
   });
 
-  // Backend Search with Debounce
+  // Search with Debounce
+  // PRIMARY: products.json is the data source (via Backend)
+  // OPTIONAL: AI NL Query for semantic search enhancement
   useEffect(() => {
     if (debounceTimerInfo.current) clearTimeout(debounceTimerInfo.current);
 
@@ -70,13 +72,18 @@ export default function Discovery() {
     setIsLoading(true);
     debounceTimerInfo.current = setTimeout(async () => {
       try {
-        const response = await API.products.getAll(1, 50, searchQuery);
-        const products = (response.data.data || []).map(convertToAppProduct);
+        console.log('[Discovery] Searching Smart Backend:', searchQuery);
+
+        // Use the new Smart Search Endpoint
+        const response = await API.products.search(searchQuery);
+        const products = (response.data || []).map(convertToAppProduct);
+
+        console.log(`[Discovery] ✓ Found ${products.length} products`);
         setSearchResults(products);
-        setCurrentIndex(0); // Reset swipeable stack index
+        setCurrentIndex(0);
       } catch (error) {
         console.error("Search failed", error);
-        // Fallback or error handling
+        setSearchResults([]);
       } finally {
         setIsLoading(false);
       }
@@ -128,13 +135,38 @@ export default function Discovery() {
   };
 
   // Swipeable Card Handlers
-  const handleLike = useCallback(() => {
+  const handleLike = useCallback(async () => {
+    const currentProduct = searchResults[currentIndex];
+    // Optimistic update
     setCurrentIndex(prev => prev + 1);
-  }, []);
 
-  const handleSkip = useCallback(() => {
+    if (currentProduct) {
+      try {
+        console.log('[Discovery] Liking product:', currentProduct.name);
+        // 1. Record Interaction
+        await API.interactions.record('LIKE', Number(currentProduct.id));
+        // 2. Add to Swirl (Wishlist)
+        await API.wishlist.add(Number(currentProduct.id));
+      } catch (e) {
+        console.error('[Discovery] Failed to record like:', e);
+      }
+    }
+  }, [searchResults, currentIndex]);
+
+  const handleSkip = useCallback(async () => {
+    const currentProduct = searchResults[currentIndex];
+    // Optimistic update
     setCurrentIndex(prev => prev + 1);
-  }, []);
+
+    if (currentProduct) {
+      try {
+        console.log('[Discovery] Skipping product:', currentProduct.name);
+        await API.interactions.record('DISLIKE', Number(currentProduct.id));
+      } catch (e) {
+        console.error('[Discovery] Failed to record dislike:', e);
+      }
+    }
+  }, [searchResults, currentIndex]);
 
   const handleViewDetails = useCallback((productId: string) => {
     router.push(`/product/${productId}`);

@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { useUserPreferences } from '@/contexts/UserPreferencesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -15,11 +16,18 @@ export default function GenderSelect() {
     const { setGender, onboardingData } = useUserPreferences();
     const [selectedGender, setSelectedGender] = useState<string | null>(onboardingData.gender || null);
 
-    const handleGenderSelect = (gender: string) => {
+    const handleGenderSelect = async (gender: string) => {
         setSelectedGender(gender);
         // Map to backend format: 'men' -> 'Men', 'women' -> 'Women'
         const formattedGender = gender === 'men' ? 'Men' : 'Women';
         setGender(formattedGender);
+
+        // Save to storage immediately for "Direct Access" resuming
+        try {
+            await AsyncStorage.setItem('swirl_temp_gender', formattedGender);
+        } catch (e) {
+            console.warn('Failed to save temp gender', e);
+        }
     };
 
     const handleContinue = () => {

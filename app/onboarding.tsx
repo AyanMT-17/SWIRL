@@ -20,6 +20,24 @@ export default function Onboarding() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const router = useRouter();
 
+  // Auto-forward if already logged in
+  React.useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { getAuthToken, getStoredUser } = require('@/services/api');
+        const token = await getAuthToken();
+        const user = await getStoredUser();
+        if (token && user) {
+          console.log('[Onboarding] Already logged in, auto-forwarding to tabs');
+          router.replace('/(tabs)');
+        }
+      } catch (err) {
+        // Ignore
+      }
+    };
+    checkAuth();
+  }, [router]);
+
   const handleNext = () => {
     if (currentSlide < SLIDES.length - 1) {
       setCurrentSlide(currentSlide + 1);

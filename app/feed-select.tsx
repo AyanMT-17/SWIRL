@@ -16,20 +16,32 @@ const scale = Math.min(widthScale, heightScale);
 const BUTTON_HEIGHT = Math.round(86 * heightScale);
 const BUTTON_BORDER_RADIUS = Math.round(24 * scale);
 
-const VIBES = [
-    { id: '1', name: 'Casual', image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400' },
-    { id: '2', name: 'Y2K', image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400' },
-    { id: '3', name: 'Minimalist', image: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400' },
-    { id: '4', name: 'Athleisure', image: 'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400' },
-    { id: '5', name: 'Streetwear', image: 'https://images.pexels.com/photos/6064683/pexels-photo-6064683.jpeg?auto=compress&cs=tinysrgb&w=400' },
-    { id: '6', name: 'Vintage', image: 'https://images.pexels.com/photos/4210866/pexels-photo-4210866.jpeg?auto=compress&cs=tinysrgb&w=400' },
+const MALE_VIBES = [
+    { id: 'm1', name: 'Y2K', image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'm2', name: 'Streetwear', image: 'https://images.pexels.com/photos/6064683/pexels-photo-6064683.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'm3', name: 'Casual', image: 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'm4', name: 'Athleisure', image: 'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'm5', name: 'Smart Casual', image: 'https://images.pexels.com/photos/1049317/pexels-photo-1049317.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'm6', name: 'Minimalist', image: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400' },
+];
+
+const FEMALE_VIBES = [
+    { id: 'f1', name: 'Y2K', image: 'https://images.pexels.com/photos/2010812/pexels-photo-2010812.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'f2', name: 'Boho', image: 'https://images.pexels.com/photos/2229490/pexels-photo-2229490.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'f3', name: 'Casual', image: 'https://images.pexels.com/photos/1036623/pexels-photo-1036623.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'f4', name: 'Athleisure', image: 'https://images.pexels.com/photos/4498573/pexels-photo-4498573.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'f5', name: 'Chic', image: 'https://images.pexels.com/photos/1926765/pexels-photo-1926765.jpeg?auto=compress&cs=tinysrgb&w=400' },
+    { id: 'f6', name: 'Street Style', image: 'https://images.pexels.com/photos/1075776/pexels-photo-1075776.jpeg?auto=compress&cs=tinysrgb&w=400' },
 ];
 
 export default function FeedSelect() {
     const router = useRouter();
-    const { setLikes, completeOnboarding } = useUserPreferences();
+    const { setLikes, completeOnboarding, onboardingData } = useUserPreferences();
     const [selectedVibes, setSelectedVibes] = useState<Set<string>>(new Set());
     const [isLoading, setIsLoading] = useState(false);
+
+    // Determine vibes based on gender
+    const VIBES = (onboardingData.gender === 'Women') ? FEMALE_VIBES : MALE_VIBES;
 
     const toggleVibe = (id: string) => {
         setSelectedVibes(prev => {

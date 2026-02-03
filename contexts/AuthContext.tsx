@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { API, setAuthToken, getAuthToken, removeAuthToken, setOnUnauthorized } from '@/services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API, setAuthToken, getAuthToken, removeAuthToken, setOnUnauthorized, getStoredUser, setStoredUser, removeStoredUser } from '@/services/api';
 import { Config } from '@/constants/Config';
 
 // ============================================================================
@@ -44,6 +45,7 @@ interface AuthContextType {
   hasUsername: boolean;
   needsOnboarding: boolean;
   setNeedsOnboarding: (value: boolean) => void;
+  refreshUser: () => Promise<void>;
 }
 
 // ============================================================================
@@ -63,6 +65,7 @@ const AuthContext = createContext<AuthContextType>({
   hasUsername: false,
   needsOnboarding: false,
   setNeedsOnboarding: () => { },
+  refreshUser: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -90,11 +93,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (token) {
           // Token exists, try to fetch user profile
+
+          // 1. Try to load from local storage first (fast)
+          const storedUser = await getStoredUser();
+          if (storedUser) {
+            setUser(storedUser);
+            setSession({
+              access_token: token,
+              token_type: 'bearer',
+              user: storedUser,
+            });
+          }
+
           try {
+            // 2. Refresh from backend (background)
             const response = await API.auth.getMe();
             const userData = response.data;
 
             setUser(userData);
+            await setStoredUser(userData); // Update local storage
+
             setSession({
               access_token: token,
               token_type: 'bearer',
@@ -109,9 +127,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setNeedsOnboarding(true);
             }
           } catch (error) {
-            // Token invalid or expired
-            console.log('[Auth] Token invalid, clearing...');
-            await removeAuthToken();
+            console.warn('[Auth] Token verification failed:', error);
+            // Only clear if we really can't authenticate
+            if (!storedUser) {
+              console.log('[Auth] Token invalid and no stored user, clearing...');
+              await removeAuthToken();
+              await removeStoredUser();
+            }
           }
         }
       } catch (error) {
@@ -128,9 +150,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Set up unauthorized callback
   // --------------------------------------------------------------------------
   useEffect(() => {
-    setOnUnauthorized(() => {
+    setOnUnauthorized(async () => {
       setSession(null);
       setUser(null);
+      await removeStoredUser();
     });
   }, []);
 
@@ -172,6 +195,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Store the token
       await setAuthToken(access_token);
+      await setStoredUser(userData);
 
       // Update state
       setUser(userData);
@@ -200,6 +224,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // --------------------------------------------------------------------------
+  // Refresh User
+  // --------------------------------------------------------------------------
+  const refreshUser = useCallback(async () => {
+    try {
+      console.log('[Auth] Refreshing user data...');
+      const token = await getAuthToken();
+      if (!token) return;
+
+      const response = await API.auth.getMe();
+      const userData = response.data;
+
+      setUser(userData);
+      await setStoredUser(userData);
+
+      setSession(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          user: userData
+        };
+      });
+      console.log('[Auth] User refreshed:', userData.name);
+    } catch (error) {
+      console.error('[Auth] Failed to refresh user:', error);
+    }
+  }, []);
+
+  // --------------------------------------------------------------------------
   // Legacy signUp (redirects to OTP flow)
   // --------------------------------------------------------------------------
   const signUp = useCallback(async (email: string, password: string): Promise<{ error: any }> => {
@@ -219,11 +271,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Sign Out
   // --------------------------------------------------------------------------
   const signOut = useCallback(async (): Promise<void> => {
-    console.log('[Auth] Signing out...');
-    await removeAuthToken();
-    setSession(null);
-    setUser(null);
-    setNeedsOnboarding(false);
+    try {
+      console.log('[Auth] --- Sign-out process started ---');
+
+      // 1. Clear Auth Storage
+      console.log('[Auth] Clearing tokens and user data...');
+      await removeAuthToken();
+      await removeStoredUser();
+
+      // 2. Clear Additional Storage
+      const keysToClear = [
+        Config.STORAGE_KEYS.USER_PREFERENCES,
+        Config.STORAGE_KEYS.CART,
+        'swirl_swiped_product_ids',
+        'swirl_liked_product_ids'
+      ];
+
+      console.log('[Auth] Clearing additional storage keys:', keysToClear);
+      for (const key of keysToClear) {
+        try {
+          await AsyncStorage.removeItem(key);
+        } catch (e) {
+          console.warn(`[Auth] Failed to clear key ${key}:`, e);
+        }
+      }
+
+      // 3. Reset State
+      console.log('[Auth] Resetting internal state...');
+      setSession(null);
+      setUser(null);
+      setNeedsOnboarding(false);
+
+      console.log('[Auth] --- Sign-out complete ---');
+    } catch (err) {
+      console.error('[Auth] Sign out error:', err);
+    }
   }, []);
 
   // --------------------------------------------------------------------------
@@ -244,6 +326,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         hasUsername,
         needsOnboarding,
         setNeedsOnboarding,
+        refreshUser,
       }}
     >
       {children}

@@ -11,7 +11,7 @@ const { width } = Dimensions.get('window');
 export default function MyAccount() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, refreshUser } = useAuth();
 
     const [name, setName] = useState('');
     const [age, setAge] = useState('');
@@ -35,15 +35,22 @@ export default function MyAccount() {
             setEmail(user.email || '');
             setPhone(user.phone || '');
 
-            // 2. Fetch Preferences (Age)
+            // 2. Fetch Preferences (Age & Gender)
             try {
+                // Load Shopper Profile for Gender
+                // const shopRes = await API.products.getProfile();
+                // if (shopRes.data?.preferenceValue) {
+                //    const prefs = shopRes.data.preferenceValue;
+                //    // Gender removed from here
+                // }
+
                 const ageRes = await API.preferences.get('profile_age');
                 if (ageRes.data && ageRes.data.preferenceValue) {
                     setAge(String(ageRes.data.preferenceValue));
                 }
             } catch (e) {
-                // Age preference might not exist yet, generic error
-                console.log('Age preference not set');
+                // Age/Gender preference might not exist yet, generic error
+                console.log('Preferences not completely set');
             }
         } catch (error) {
             console.error('Failed to load profile:', error);
@@ -57,12 +64,17 @@ export default function MyAccount() {
         setIsSaving(true);
         try {
             // 1. Update Profile (Name)
-            await API.users.updateProfile({ name });
+            await API.users.updateProfile({ name, email, phone });
 
-            // 2. Update Preferences (Age)
+            // 2. Refresh Auth Context to update global user state
+            await refreshUser();
+
+            // 3. Update Preferences (Age)
             if (age) {
                 await API.preferences.set('profile_age', age);
             }
+
+
 
             Alert.alert('Success', 'Profile updated successfully', [
                 { text: 'OK', onPress: () => router.back() }
@@ -135,25 +147,35 @@ export default function MyAccount() {
                             />
                         </View>
 
-                        {/* Email Input - Read Only */}
-                        <View className="border border-[#E5E0D0] rounded-3xl px-5 py-3 bg-[#F0EFE9]/50">
+                        {/* Email Input */}
+                        <View className="border border-[#E5E0D0] rounded-3xl px-5 py-3 bg-white/50">
                             <Text className="text-[#A09F99] text-sm font-normal mb-1">Email</Text>
                             <TextInput
                                 value={email}
-                                editable={false}
-                                className="text-lg font-normal text-[#666] p-0"
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                                autoCapitalize="none"
+                                className="text-lg font-normal text-black p-0"
+                                placeholderTextColor="#A09F99"
+                                placeholder="Enter your email"
                             />
                         </View>
 
-                        {/* Phone Input - Read Only */}
-                        <View className="border border-[#E5E0D0] rounded-3xl px-5 py-3 bg-[#F0EFE9]/50">
+
+                        {/* Phone Input */}
+                        <View className="border border-[#E5E0D0] rounded-3xl px-5 py-3 bg-white/50">
                             <Text className="text-[#A09F99] text-sm font-normal mb-1">Phone Number</Text>
                             <TextInput
                                 value={phone}
-                                editable={false}
-                                className="text-lg font-normal text-[#666] p-0"
+                                onChangeText={setPhone}
+                                keyboardType="phone-pad"
+                                className="text-lg font-normal text-black p-0"
+                                placeholderTextColor="#A09F99"
+                                placeholder="Enter your phone"
                             />
                         </View>
+
+
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

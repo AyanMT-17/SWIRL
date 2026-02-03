@@ -4,6 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { FilterState } from '@/components/FilterModal';
 import FilterModal from '@/components/FilterModal';
 import { useProductFeed } from '@/contexts/ProductFeedContext';
+import { API } from '@/services/api';
 import SwipeableProductCard from '@/components/SwipeableProductCard';
 import OnboardingTour from '@/components/OnboardingTour';
 import HomeHeader from '@/components/home/HomeHeader';
@@ -42,24 +43,95 @@ export default function Home() {
     router.setParams({ showTour: '' });
   };
 
+  // Search State
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const debounceTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced Backend Search
+  React.useEffect(() => {
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        console.log('[Home] Searching Backend:', searchQuery);
+        const response = await API.products.search(searchQuery);
+        // Map backend products to App format if needed (assuming API returns similar structure or we use helper)
+        // We'll trust the API returns what we need or map it basic
+        const mappedProducts = response.data || [];
+        setSearchResults(mappedProducts);
+      } catch (err) {
+        console.error('Search failed:', err);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 600);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [searchQuery]);
+
   // Filter products by category and search
   const availableProducts = useMemo(() => {
+    // 1. If we have a search query, show backend results (Natural Language Search)
+    if (searchQuery.trim().length > 0) {
+      if (searchResults.length > 0) return searchResults;
+      // If searching but no results yet (or empty), return empty or keep previous?
+      // Let's return empty to show "No results" or loading state if we want.
+      // But for smooth UX, maybe we wait? No, instant feedback is better.
+      return searchResults;
+    }
+
+    // 2. Otherwise, use Client-Side Filtering on the Feed
     return products.filter(product => {
-      const productCategories = product.categories || [product.category];
+      // Ensure categories is an array and filter out null/undefined values
+      const productCategories = (product.categories || [product.category] || []).filter(c => !!c);
+
       // Must match primary category (Top/Bottom/Foot)
       const matchesPrimaryCategory = productCategories.some(cat =>
         cat.toLowerCase().includes(selectedCategory.toLowerCase())
       );
+
       // Optionally match secondary subcategory (Lite/Premium/Luxe/Streetwear)
-      const matchesSubcategory = !selectedSubcategory || productCategories.some(cat =>
-        cat.toLowerCase().includes(selectedSubcategory.toLowerCase())
-      );
-      const matchesSearch = searchQuery === '' ||
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.brand.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesPrimaryCategory && matchesSubcategory && matchesSearch;
+      let matchesSubcategory = true;
+      if (selectedSubcategory) {
+        const sub = selectedSubcategory.toLowerCase();
+        // Map UI subcategories to properties
+        if (sub === 'lite') {
+          matchesSubcategory = product.price < 1000 || product.properties?.price_tier === 'budget';
+        } else if (sub === 'premium') {
+          matchesSubcategory = (product.price >= 1000 && product.price <= 5000) || product.properties?.price_tier === 'premium';
+        } else if (sub === 'luxe' || sub === 'lux') {
+          matchesSubcategory = product.price > 5000 || product.properties?.price_tier === 'luxury';
+        } else if (sub === 'streetwear') {
+          matchesSubcategory = product.properties?.style === 'streetwear' || productCategories.some(c => c.toLowerCase().includes('street'));
+        } else {
+          matchesSubcategory = productCategories.some(cat => cat.toLowerCase().includes(sub));
+        }
+      }
+
+      return matchesPrimaryCategory && matchesSubcategory;
     });
-  }, [products, selectedCategory, selectedSubcategory, searchQuery]);
+  }, [products, selectedCategory, selectedSubcategory, searchQuery, searchResults]);
+
+  // Handle Search Submission (Trigger Backend Search)
+  // This logic should ideally reside in `HomeHeader` or a `useEffect` here.
+  // Since `HomeHeader` just sets `setSearchQuery`, we can watch `searchQuery` here.
+
+  /* 
+     NOTE: Implementing full Backend Search on Home requires replacing the Feed Context data.
+     For now, we recommend users use the Discovery Tab for advanced search.
+     But we can add a "Search on Discovery" button if local results are empty.
+  */
 
   // Get current and next from filtered list
   const filteredCurrentProduct = availableProducts[0];
@@ -97,21 +169,29 @@ export default function Home() {
 
   const handleReset = useCallback(() => {
     Alert.alert(
-      'Reset Feed',
-      'Are you sure you want to reset your recommendations? This will clear all likes and skips.',
+      'Refresh Feed',
+      'This will reset your filters and refresh recommendations.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Reset',
-          style: 'destructive',
+          text: 'Refresh',
           onPress: async () => {
-            await resetFeed();
-            Alert.alert('Reset Complete', 'Your feed has been reset.');
+            // Reset Filters
+            setSelectedCategory('Top');
+            setSelectedSubcategory(null);
+            setSearchQuery('');
+            setActiveFilters(null);
+            setCurrentIndex(0); // Also reset index to show fresh batch from start
+
+            // Refetch Feed
+            await refreshFeed();
+
+            Alert.alert('Refreshed', 'Filters reset and feed updated.');
           }
         }
       ]
     );
-  }, [resetFeed]);
+  }, [refreshFeed]);
 
   const handleCategoryChange = useCallback((category: string) => {
     setSelectedCategory(category);

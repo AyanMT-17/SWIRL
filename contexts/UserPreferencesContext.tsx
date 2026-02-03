@@ -9,6 +9,8 @@ import { Config } from '@/constants/Config';
 
 export interface UserPreferences {
     gender: 'Men' | 'Women' | string;
+    mobile?: string;
+    country?: string;
     size: string;
     likes: string[];
     dislikes: string[];
@@ -24,6 +26,8 @@ interface UserPreferencesContextType {
 
     // Methods
     setGender: (gender: string) => void;
+    setMobile: (mobile: string) => void;
+    setCountry: (country: string) => void;
     setSize: (size: string) => void;
     setLikes: (likes: string[]) => void;
     setDislikes: (dislikes: string[]) => void;
@@ -34,7 +38,6 @@ interface UserPreferencesContextType {
     // Load preferences
     loadPreferences: () => Promise<void>;
 
-    // Reset (for logout)
     // Reset (for logout)
     resetPreferences: () => void;
 
@@ -52,6 +55,8 @@ const UserPreferencesContext = createContext<UserPreferencesContextType>({
     isOnboardingComplete: false,
     onboardingData: {},
     setGender: () => { },
+    setMobile: () => { },
+    setCountry: () => { },
     setSize: () => { },
     setLikes: () => { },
     setDislikes: () => { },
@@ -69,7 +74,9 @@ export const useUserPreferences = () => useContext(UserPreferencesContext);
 
 const DEFAULT_PREFERENCES: UserPreferences = {
     gender: 'Men',
-    size: 'M',
+    mobile: '',
+    country: 'IN',
+    size: '',
     likes: [],
     dislikes: [],
 };
@@ -159,6 +166,16 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
         setOnboardingData(prev => ({ ...prev, gender }));
     }, []);
 
+    const setMobile = useCallback((mobile: string) => {
+        console.log('[UserPreferences] Setting mobile:', mobile);
+        setOnboardingData(prev => ({ ...prev, mobile }));
+    }, []);
+
+    const setCountry = useCallback((country: string) => {
+        console.log('[UserPreferences] Setting country:', country);
+        setOnboardingData(prev => ({ ...prev, country }));
+    }, []);
+
     const setSize = useCallback((size: string) => {
         console.log('[UserPreferences] Setting size:', size);
         setOnboardingData(prev => ({ ...prev, size }));
@@ -182,6 +199,8 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
             // Merge with defaults
             const finalPreferences: UserPreferences = {
                 gender: onboardingData.gender || DEFAULT_PREFERENCES.gender,
+                mobile: onboardingData.mobile || DEFAULT_PREFERENCES.mobile,
+                country: onboardingData.country || DEFAULT_PREFERENCES.country,
                 size: onboardingData.size || DEFAULT_PREFERENCES.size,
                 likes: onboardingData.likes || DEFAULT_PREFERENCES.likes,
                 dislikes: onboardingData.dislikes || DEFAULT_PREFERENCES.dislikes,
@@ -253,6 +272,8 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
                 isOnboardingComplete,
                 onboardingData,
                 setGender,
+                setMobile,
+                setCountry,
                 setSize,
                 setLikes,
                 setDislikes,

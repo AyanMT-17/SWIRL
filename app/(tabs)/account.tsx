@@ -31,7 +31,7 @@ const MENU_ITEMS = [
 export default function Account() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { signOut } = useAuth();
+    const { signOut, user } = useAuth();
 
     const handleNavigation = (item: typeof MENU_ITEMS[0]) => {
         if (item.label === 'Connect your Pinterest board') {
@@ -64,7 +64,7 @@ export default function Account() {
                 }}
             >
                 <View>
-                    <Text className="text-2xl font-normal text-black tracking-tight mb-3">Hey, User</Text>
+                    <Text className="text-2xl font-normal text-black tracking-tight mb-3">Hey, {user?.name || 'User'}</Text>
                     <TouchableOpacity
                         className="bg-[#E5B58D] py-2.5 px-5 rounded-full flex-row items-center self-start"
                         onPress={() => { }}
@@ -121,7 +121,18 @@ export default function Account() {
 
                     {/* Sign Out Button */}
                     <TouchableOpacity
-                        onPress={signOut}
+                        onPress={async () => {
+                            console.log('[Account] Sign Out button pressed');
+                            try {
+                                await signOut();
+                                console.log('[Account] signOut() finished, replacing route...');
+                                router.replace('/onboarding');
+                            } catch (e) {
+                                console.error('[Account] Error during sign out:', e);
+                                // Fallback redirect
+                                router.replace('/onboarding');
+                            }
+                        }}
                         className="mx-6 mt-8 py-4 border-t border-[#F0EFE9] items-center"
                     >
                         <Text className="text-red-500 font-medium text-base">Sign Out</Text>

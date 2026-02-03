@@ -13,6 +13,8 @@
 
 import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import { Config } from '@/constants/Config';
 
 // ============================================================================
@@ -32,9 +34,13 @@ export interface ApiError {
 }
 
 // ============================================================================
-// Create Axios Instance
+// Create Axios Instances
 // ============================================================================
 
+/**
+ * Backend API Instance (User Service - :4000)
+ * Used for: Auth, Cart, Wishlist, Orders, User Profile, Preferences
+ */
 const api: AxiosInstance = axios.create({
     baseURL: Config.API_BASE_URL,
     timeout: Config.API_TIMEOUT,
@@ -43,8 +49,20 @@ const api: AxiosInstance = axios.create({
     },
 });
 
+/**
+ * AI Service Instance (:8000)
+ * Used for: Recommendations, NL Queries, Feed, ML-powered features
+ */
+const aiApi: AxiosInstance = axios.create({
+    baseURL: Config.AI_SERVICE_URL,
+    timeout: Config.API_TIMEOUT,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
 // ============================================================================
-// Request Interceptor - Inject JWT Token
+// Request Interceptor - Inject JWT Token (Backend API)
 // ============================================================================
 
 api.interceptors.request.use(
@@ -69,6 +87,35 @@ api.interceptors.request.use(
     },
     (error: AxiosError) => {
         console.error('[API] Request Error:', error.message);
+        return Promise.reject(error);
+    }
+);
+
+// ============================================================================
+// Request Interceptor - Inject JWT Token (AI Service API)
+// ============================================================================
+
+aiApi.interceptors.request.use(
+    async (config: InternalAxiosRequestConfig) => {
+        try {
+            const token = await SecureStore.getItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN);
+
+            if (token && config.headers) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        } catch (error) {
+            console.warn('[AI] Failed to get token from SecureStore:', error);
+        }
+
+        // Development logging
+        if (__DEV__) {
+            console.log(`[AI] ${config.method?.toUpperCase()} ${config.url}`);
+        }
+
+        return config;
+    },
+    (error: AxiosError) => {
+        console.error('[AI] Request Error:', error.message);
         return Promise.reject(error);
     }
 );
@@ -135,6 +182,37 @@ api.interceptors.response.use(
 );
 
 // ============================================================================
+// Response Interceptor - Handle Errors (AI Service API)
+// ============================================================================
+
+aiApi.interceptors.response.use(
+    (response: AxiosResponse) => {
+        if (__DEV__) {
+            console.log(`[AI] Response ${response.status} from ${response.config.url}`);
+        }
+        return response;
+    },
+    async (error: AxiosError<ApiError>) => {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || error.message;
+
+        if (__DEV__) {
+            console.error(`[AI] Error ${status}: ${message}`);
+        }
+
+        // For AI Service, 401 should also trigger logout
+        if (status === 401) {
+            console.warn('[AI] Unauthorized - Token may be expired');
+            if (onUnauthorized) {
+                onUnauthorized();
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+// ============================================================================
 // Token Management Helpers
 // ============================================================================
 
@@ -143,7 +221,11 @@ api.interceptors.response.use(
  */
 export const setAuthToken = async (token: string): Promise<void> => {
     try {
-        await SecureStore.setItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN, token);
+        if (Platform.OS === 'web') {
+            await AsyncStorage.setItem(Config.STORAGE_KEYS.AUTH_TOKEN, token);
+        } else {
+            await SecureStore.setItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN, token);
+        }
     } catch (error) {
         console.error('[API] Failed to store auth token:', error);
         throw error;
@@ -155,7 +237,11 @@ export const setAuthToken = async (token: string): Promise<void> => {
  */
 export const getAuthToken = async (): Promise<string | null> => {
     try {
-        return await SecureStore.getItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN);
+        if (Platform.OS === 'web') {
+            return await AsyncStorage.getItem(Config.STORAGE_KEYS.AUTH_TOKEN);
+        } else {
+            return await SecureStore.getItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN);
+        }
     } catch (error) {
         console.warn('[API] Failed to get auth token:', error);
         return null;
@@ -165,11 +251,55 @@ export const getAuthToken = async (): Promise<string | null> => {
 /**
  * Remove stored authentication token
  */
+/**
+ * Remove stored authentication token
+ */
 export const removeAuthToken = async (): Promise<void> => {
     try {
-        await SecureStore.deleteItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN);
+        if (Platform.OS === 'web') {
+            await AsyncStorage.removeItem(Config.STORAGE_KEYS.AUTH_TOKEN);
+        } else {
+            await SecureStore.deleteItemAsync(Config.STORAGE_KEYS.AUTH_TOKEN);
+        }
     } catch (error) {
         console.warn('[API] Failed to remove auth token:', error);
+    }
+};
+
+/**
+ * Store user data locally
+ * Note: We use AsyncStorage for user data (non-sensitive profile info) on all platforms
+ * because SecureStore has size limits and is better suited for small secrets like tokens.
+ */
+export const setStoredUser = async (user: any): Promise<void> => {
+    try {
+        await AsyncStorage.setItem(Config.STORAGE_KEYS.USER_DATA, JSON.stringify(user));
+    } catch (error) {
+        console.error('[API] Failed to store user data:', error);
+    }
+};
+
+/**
+ * Get stored user data
+ */
+export const getStoredUser = async (): Promise<any | null> => {
+    try {
+        const json = await AsyncStorage.getItem(Config.STORAGE_KEYS.USER_DATA);
+        return json ? JSON.parse(json) : null;
+    } catch (error) {
+        console.warn('[API] Failed to get user data:', error);
+        return null;
+    }
+};
+
+/**
+ * Remove stored user data
+ */
+export const removeStoredUser = async (): Promise<void> => {
+    try {
+        await AsyncStorage.removeItem(Config.STORAGE_KEYS.USER_DATA);
+    } catch (error) {
+        console.warn('[API] Failed to remove user data:', error);
     }
 };
 
@@ -226,7 +356,7 @@ export const API = {
         /**
          * Update user profile
          */
-        updateProfile: (data: { name?: string; avatar?: string }) =>
+        updateProfile: (data: { name?: string; avatar?: string; email?: string; phone?: string }) =>
             api.put('/users/me', data),
     },
 
@@ -239,14 +369,20 @@ export const API = {
          * @param page - Page number (1-indexed)
          * @param limit - Items per page (default: 20)
          */
-        getAll: (page: number = 1, limit: number = 20, searchQuery?: string) =>
-            api.get('/products', { params: { page, limit, q: searchQuery } }),
+        getAll: (page: number = 1, limit: number = 20, filters?: { q?: string; category?: string; gender?: string;[key: string]: any }) =>
+            api.get('/products', { params: { page, limit, ...filters } }),
 
         /**
          * Get personalized recommendations (requires saved profile)
          */
-        getRecommendations: () =>
-            api.post('/products/recommend/user'),
+        getRecommendations: (category?: string, limit: number = 10) =>
+            api.post(`/products/recommend/user?limit=${limit}${category ? `&category=${category}` : ''}`),
+
+        /**
+         * Smart Search
+         */
+        search: (query: string) =>
+            api.post('/products/search', { query }),
 
         /**
          * Get recommendations with explicit preferences (for guests)
@@ -256,7 +392,7 @@ export const API = {
             dislikes: string[];
             size: string;
             gender: string;
-        }) => api.post('/products/recommend', preferences),
+        }, category?: string, limit: number = 10) => api.post(`/products/recommend?limit=${limit}${category ? `&category=${category}` : ''}`, preferences),
 
         /**
          * Get saved shopper profile
@@ -408,7 +544,70 @@ export const API = {
          */
         delete: (type: string) => api.delete(`/preferences/${type}`),
     },
+
+    // --------------------------------------------------------------------------
+    // AI Service Endpoints (Direct calls to AI Service :8000)
+    // --------------------------------------------------------------------------
+    ai: {
+        /**
+         * Get ML-powered recommendation feed
+         * @param limit - Number of recommendations (default: 20)
+         * @param filters - Optional filters for recommendations
+         */
+        getFeed: (limit: number = 20, filters?: {
+            gender?: string;
+            category?: string;
+            price_min?: number;
+            price_max?: number;
+        }) => aiApi.get('/recommendations/feed', {
+            params: { limit, ...filters }
+        }),
+
+        /**
+         * Natural Language Query - Get recommendations based on text query
+         * @param query - Natural language query (e.g., "casual party outfit")
+         * @param limit - Number of results (default: 10)
+         */
+        nlQuery: (query: string, limit: number = 10) =>
+            aiApi.post('/recommendations/nl-query', { query, limit }),
+
+        /**
+         * Record user interaction for ML training (AI Service)
+         * @param interactionType - Type of interaction
+         * @param itemId - Product ID
+         * @param context - Additional context
+         */
+        recordInteraction: (
+            interactionType: 'view' | 'like' | 'dislike' | 'cart_add' | 'purchase',
+            itemId: number,
+            context?: Record<string, any>
+        ) => aiApi.post('/recommendations/interactions', {
+            interaction_type: interactionType,
+            item_id: itemId,
+            context
+        }),
+
+        /**
+         * Get similar items (AI-powered)
+         * @param itemId - Product ID to find similar items for
+         * @param limit - Number of similar items
+         */
+        getSimilar: (itemId: number, limit: number = 10) =>
+            aiApi.get(`/items/${itemId}/similar`, { params: { limit } }),
+
+        /**
+         * Get item details from AI Service
+         * @param itemId - Product ID
+         */
+        getItem: (itemId: number) => aiApi.get(`/items/${itemId}`),
+
+        /**
+         * Check AI Service health/availability
+         */
+        healthCheck: () => aiApi.get('/health'),
+    },
 };
 
-// Export the raw axios instance for advanced use cases
+// Export the raw axios instances for advanced use cases
+export { aiApi };
 export default api;

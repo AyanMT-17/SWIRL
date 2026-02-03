@@ -53,7 +53,7 @@ export default function PhoneLogin() {
                 if (__DEV__) {
                     console.log(`[PhoneLogin] Dev Mode - Use OTP: ${Config.DEV_OTP_CODE}`);
                 }
-                router.push(`/otp-verify?phone=${encodeURIComponent(fullPhoneNumber)}`);
+                router.push(`/otp-verify?phone=${encodeURIComponent(fullPhoneNumber)}&countryCode=${selectedCountry.code}`);
             }
         } catch (err: any) {
             Alert.alert('Error', err.message || 'Something went wrong');
