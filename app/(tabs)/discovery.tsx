@@ -76,7 +76,9 @@ export default function Discovery() {
 
         // Use the new Smart Search Endpoint
         const response = await API.products.search(searchQuery);
-        const products = (response.data || []).map(convertToAppProduct);
+        // Robustly handle paginated ({ data: [...] }) or flat ([...]) response
+        const rawProducts = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+        const products = rawProducts.map(convertToAppProduct);
 
         console.log(`[Discovery] ✓ Found ${products.length} products`);
         setSearchResults(products);
@@ -168,9 +170,10 @@ export default function Discovery() {
     }
   }, [searchResults, currentIndex]);
 
-  const handleViewDetails = useCallback((productId: string) => {
-    router.push(`/product/${productId}`);
-  }, [router]);
+  const handleViewDetails = (productId: string) => {
+    // router.push(`/product/${productId}`);
+    console.log('View details clicked:', productId);
+  };
 
   const handleBack = useCallback(() => {
     router.back();
@@ -256,7 +259,7 @@ export default function Discovery() {
                     <TouchableOpacity
                       key={item.id || index}
                       style={{ width: '48%', marginBottom: 16 }}
-                      onPress={() => router.push(`/product/${item.id}`)}
+                      onPress={() => console.log('Search item clicked:', item.id)}
                     >
                       <Image
                         source={{ uri: item.product_images?.[0]?.image_url }}
@@ -285,8 +288,8 @@ export default function Discovery() {
                     onLike={handleLike}
                     onSkip={handleSkip}
                     onViewDetails={() => handleViewDetails(searchResults[currentIndex].id)}
-                    onAddToCart={(size) => Alert.alert('Added', `Size ${size} added`)}
-                    onBuyNow={(size) => Alert.alert('Buying', `Size ${size}`)}
+                    onAddToCart={(size) => console.log('Added to cart', size)}
+                    onBuyNow={(size) => console.log('Buy now', size)}
                     isFirst={true}
                     containerHeight={swipeContainerHeight > 0 ? swipeContainerHeight : undefined}
                   />

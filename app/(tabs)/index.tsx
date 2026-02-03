@@ -65,7 +65,8 @@ export default function Home() {
         const response = await API.products.search(searchQuery);
         // Map backend products to App format if needed (assuming API returns similar structure or we use helper)
         // We'll trust the API returns what we need or map it basic
-        const mappedProducts = response.data || [];
+        const rawProducts = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+        const mappedProducts = rawProducts;
         setSearchResults(mappedProducts);
       } catch (err) {
         console.error('Search failed:', err);
@@ -151,7 +152,8 @@ export default function Home() {
 
   const handleViewDetails = useCallback(async () => {
     if (filteredCurrentProduct) {
-      router.push(`/product/${filteredCurrentProduct.id}`);
+      // router.push(`/product/${filteredCurrentProduct.id}`);
+      console.log('View details clicked:', filteredCurrentProduct.id);
     }
   }, [filteredCurrentProduct, router]);
 
@@ -160,11 +162,13 @@ export default function Home() {
   }, []);
 
   const handleBuyNow = useCallback((size: string) => {
-    Alert.alert('Coming Soon', 'Checkout functionality will be available soon!');
+    // Alert.alert('Coming Soon', 'Checkout functionality will be available soon!');
+    console.log('Buy Now clicked', size);
   }, []);
 
   const handleUndo = useCallback(() => {
-    Alert.alert('Undo', 'Undo not available in this version');
+    // Alert.alert('Undo', 'Undo not available in this version');
+    console.log('Undo clicked');
   }, []);
 
   const handleReset = useCallback(() => {

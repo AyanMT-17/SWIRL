@@ -382,7 +382,7 @@ export const API = {
          * Smart Search
          */
         search: (query: string) =>
-            api.post('/products/search', { query }),
+            api.get('/products/search', { params: { q: query } }),
 
         /**
          * Get recommendations with explicit preferences (for guests)

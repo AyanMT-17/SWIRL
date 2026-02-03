@@ -15,7 +15,7 @@ export default function InviteUnlock() {
 
     const handleUnlock = () => {
         // In a real app, verify code here.
-        router.replace('/(tabs)');
+        router.replace('/gender-select');
     };
 
     return (
@@ -87,7 +87,7 @@ export default function InviteUnlock() {
 
                         {/* Unlock Access Button */}
                         <TouchableOpacity
-                            onPress={() => router.replace('/(tabs)?showTour=true')}
+                            onPress={() => router.replace('/gender-select')}
                             style={{
                                 backgroundColor: '#E4AD82',
                                 width: SCREEN_WIDTH,
@@ -104,7 +104,7 @@ export default function InviteUnlock() {
 
                         {/* Don't have a code? */}
                         <TouchableOpacity
-                            onPress={() => router.replace('/(tabs)?showTour=true')}
+                            onPress={() => router.replace('/gender-select')}
                             style={{ marginTop: 24 }}
                         >
                             <Text className="text-gray-400 text-center text-sm">

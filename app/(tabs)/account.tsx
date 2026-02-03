@@ -39,7 +39,8 @@ export default function Account() {
         }
 
         if (item.isModal && item.route !== '/support') {
-            Alert.alert('Coming Soon', `${item.label} will be available in the next update!`);
+            // Alert.alert('Coming Soon', `${item.label} will be available in the next update!`);
+            console.log('Menu item clicked (Coming Soon):', item.label);
             return;
         }
 

@@ -55,7 +55,7 @@ export default function LocationSelect() {
                         Where do you live?
                     </Text>
                     <Text className="text-gray-500 text-center mb-12 px-4 leading-6 text-sm">
-                        This helps us find clothing that is perfectly altered to your taste.Don't worry we won't show it on your profile
+                        This helps us find clothing that is perfectly altered to your taste.
                     </Text>
 
                     {/* Country Selector */}

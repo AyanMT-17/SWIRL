@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from 'react-native-heroicons/outline';
-import { useRecommendation } from '@/contexts/RecommendationContext';
 import { useProductFeed } from '@/contexts/ProductFeedContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -13,23 +13,15 @@ export default function CollectionDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const insets = useSafeAreaInsets();
-    const { collections } = useRecommendation();
+    // const { collections } = useRecommendation();
     const { products, getLikedProducts } = useProductFeed();
 
-    // Find the collection
-    const collection = collections.find(c => c.id === id);
+    // Mock collection find logic since context is gone
+    const collection = { id, name: 'Collection', productIds: [] }; // Placeholder
 
     // Get products in this collection
     const likedProducts = getLikedProducts();
-    const collectionProducts = collection?.productIds
-        .map(productId => {
-            // First try to find in liked products
-            const likedProduct = likedProducts.find(p => p.id === productId);
-            if (likedProduct) return likedProduct;
-            // Then try all products
-            return products.find(p => p.id === productId);
-        })
-        .filter(Boolean) || [];
+    const collectionProducts = products.filter(p => !p); // Empty for now until collection logic is fixed
 
     if (!collection) {
         return (
@@ -90,7 +82,7 @@ export default function CollectionDetail() {
                             <TouchableOpacity
                                 key={product?.id || index}
                                 style={{ width: CARD_WIDTH }}
-                                onPress={() => router.push(`/product/${product?.id}`)}
+                                onPress={() => console.log('Product clicked:', product?.id)}
                             >
                                 <Image
                                     source={{ uri: product?.product_images?.[0]?.image_url }}

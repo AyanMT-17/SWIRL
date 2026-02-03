@@ -76,7 +76,7 @@ export default function FeedSelect() {
                 Alert.alert('Error', error);
             } else {
                 console.log('[FeedSelect] Onboarding complete, navigating');
-                router.replace('/invite-unlock');
+                router.replace('/(tabs)?showTour=true');
             }
         }
     };

@@ -249,7 +249,8 @@ export default function Cart() {
 
   const handleBuyNow = (item: CartItem) => {
     // Placeholder - checkout functionality removed
-    Alert.alert('Coming Soon', 'Checkout functionality will be available soon!');
+    // Alert.alert('Coming Soon', 'Checkout functionality will be available soon!');
+    console.log('Checkout clicked for item', item.id);
   };
 
   return (

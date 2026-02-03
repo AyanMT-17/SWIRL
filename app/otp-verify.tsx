@@ -48,7 +48,7 @@ export default function OtpVerify() {
 
                 // Navigate based on onboarding status
                 console.log('[OtpVerify] Login successful, needsOnboarding:', needsOnboarding);
-                router.replace('/gender-select');
+                router.replace('/invite-unlock');
             }
         } catch (err: any) {
             Alert.alert('Error', err.message || 'Verification failed');
