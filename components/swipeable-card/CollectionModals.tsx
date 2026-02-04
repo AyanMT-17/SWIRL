@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Modal, ScrollView, Image, TextInput, Dime
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { Ionicons } from '@expo/vector-icons';
 import { Product } from '@/contexts/LikesContext';
-import { Collection } from '@/contexts/RecommendationContext';
+import { Collection } from '@/types/app';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const COLLECTION_CARD_WIDTH = (SCREEN_WIDTH - 64) / 3;

@@ -1,5 +1,3 @@
-import { PREMIUM_BRANDS } from '@/constants/mockData';
-
 export interface FilterState {
     selectedCategory: string;
     selectedItems: { [key: string]: string[] };
@@ -23,22 +21,18 @@ export const FILTER_CATEGORIES = [
 
 export const generateBrandData = () => {
     const data: { [key: string]: string[] } = {
-        'Popular Brands': ['Roadster', 'HRX by Hrithik Roshan', 'Nike', 'H&M', 'Miniorange']
+        'Popular Brands': ['Roadster', 'HRX by Hrithik Roshan', 'Nike', 'H&M', 'Miniorange'],
+        'A': ['Adidas', 'Allen Solly', 'Arrow'],
+        'B': ['Biba', 'Blackberrys'],
+        'C': ['Calvin Klein', 'Campus'],
+        'L': ['Levis', 'Louis Philippe'],
+        'P': ['Puma', 'Peter England'],
+        'R': ['Raymond', 'Reebok'],
+        'U': ['Under Armour', 'United Colors of Benetton'],
+        'V': ['Van Heusen', 'Vero Moda'],
+        'W': ['W', 'Woodland'],
+        'Z': ['Zara', 'Zivame']
     };
-
-    PREMIUM_BRANDS.forEach(brand => {
-        const firstLetter = brand.name[0].toUpperCase();
-        if (!data[firstLetter]) {
-            data[firstLetter] = [];
-        }
-        data[firstLetter].push(brand.name);
-    });
-
-    Object.keys(data).forEach(key => {
-        if (key !== 'Popular Brands') {
-            data[key].sort();
-        }
-    });
 
     return data;
 };

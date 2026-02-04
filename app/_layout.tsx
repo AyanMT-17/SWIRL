@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { CollectionsProvider } from '@/contexts/CollectionsContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { LikesProvider } from '@/contexts/LikesContext';
 import { UserPreferencesProvider } from '@/contexts/UserPreferencesContext';
@@ -16,7 +17,7 @@ import { View } from 'react-native';
 // Keep splash screen visible while fonts load
 SplashScreen.preventAutoHideAsync();
 
-import { RecommendationProvider } from '@/contexts/RecommendationContext';
+
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -45,7 +46,7 @@ export default function RootLayout() {
           <ProductFeedProvider>
             <CartProvider>
               <LikesProvider>
-                <RecommendationProvider>
+                <CollectionsProvider>
                   <Stack screenOptions={{ headerShown: false }}>
                     <Stack.Screen name="onboarding" />
                     <Stack.Screen name="location-select" />
@@ -59,7 +60,7 @@ export default function RootLayout() {
                     <Stack.Screen name="auth" />
                   </Stack>
                   <StatusBar style="dark" />
-                </RecommendationProvider>
+                </CollectionsProvider>
               </LikesProvider>
             </CartProvider>
           </ProductFeedProvider>

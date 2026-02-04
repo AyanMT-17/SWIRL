@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, ScrollView, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useProductFeed } from '@/contexts/ProductFeedContext';
-import { useRecommendation } from '@/contexts/RecommendationContext';
+
 import { useCart } from '@/contexts/CartContext';
+import { useCollections } from '@/contexts/CollectionsContext';
 import { useRouter } from 'expo-router';
 import SwirlHeader from '@/components/swirl/SwirlHeader';
 import SwirlsTab from '@/components/swirl/SwirlsTab';
@@ -30,8 +31,8 @@ export default function Swirl() {
     // Use ProductFeedContext for liked products (backend data)
     const { getLikedProducts, removeFromLiked } = useProductFeed();
 
-    // Use RecommendationContext for collections (local only for now)
-    const { collections, createCollection, addToCollection } = useRecommendation();
+    // Use CollectionsContext for user-specific local collections
+    const { collections, createCollection, addToCollection } = useCollections();
     const { addToCart } = useCart();
 
     // Get liked products from the backend-synced context

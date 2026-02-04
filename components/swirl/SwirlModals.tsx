@@ -3,7 +3,7 @@ import { View, Text, Modal, TouchableOpacity, ScrollView, Image, TextInput, Keyb
 import { XMarkIcon } from 'react-native-heroicons/outline';
 import { Ionicons } from '@expo/vector-icons';
 import LeftArrowIcon from '@/components/icons/LeftArrowIcon';
-import { Collection } from '@/contexts/RecommendationContext';
+import { Collection } from '@/types/app';
 
 interface SwirlModalsProps {
     showAddToCollection: boolean;

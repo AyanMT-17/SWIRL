@@ -12,7 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Product } from '@/contexts/LikesContext';
 import { useCart } from '@/contexts/CartContext';
-import { useRecommendation } from '@/contexts/RecommendationContext';
+import { useCollections } from '@/contexts/CollectionsContext';
+
 import SizeSelectionModal from './swipeable-card/SizeSelectionModal';
 import CollectionModals from './swipeable-card/CollectionModals';
 import ProductInfoPanel from './swipeable-card/ProductInfoPanel';
@@ -73,7 +74,7 @@ export default function SwipeableProductCard({
     const [showNewCollectionModal, setShowNewCollectionModal] = useState(false);
 
     const { addToCart } = useCart();
-    const { collections, createCollection, addToCollection } = useRecommendation();
+    const { collections, createCollection, addToCollection } = useCollections();
 
     const mainImage = product.product_images[0]?.image_url || 'https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=800';
     const thumbnails = product.product_images.slice(0, 4).map(img => img.image_url);

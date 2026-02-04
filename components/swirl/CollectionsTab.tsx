@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Collection } from '@/contexts/RecommendationContext';
+import { Collection } from '@/types/app';
 
 interface CollectionsTabProps {
     collections: Collection[];
